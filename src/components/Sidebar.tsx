@@ -1,50 +1,39 @@
-import { Home, BarChart3, Video, Wrench, Brain, Settings, HelpCircle, Send, LogOut } from "lucide-react";
+import { Home, BarChart3, Video, Wrench, Brain, Settings, HelpCircle, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-const menuItems = [{
-  icon: Home,
-  label: "Dashboard",
-  href: "/"
-}, {
-  icon: BarChart3,
-  label: "Competitor analysis",
-  href: "/competitor-analysis"
-}, {
-  icon: Video,
-  label: "Video analysis",
-  href: "/video-analysis"
-}, {
-  icon: Wrench,
-  label: "In work",
-  href: "/in-work"
-}, {
-  icon: Brain,
-  label: "AI insights",
-  href: "/ai-insights"
-}];
-const bottomMenuItems = [{
-  icon: Settings,
-  label: "Settings",
-  href: "/settings"
-}];
+
+const menuItems = [
+  { icon: Home, label: "Dashboard", href: "/" },
+  { icon: Users, label: "My Accounts", href: "/my-accounts" },
+  { icon: BarChart3, label: "Competitor Analysis", href: "/competitor-analysis" },
+  { icon: Video, label: "Video Analysis", href: "/video-analysis" },
+  { icon: Wrench, label: "In Work", href: "/in-work" },
+  { icon: Brain, label: "AI Insights", href: "/ai-insights" },
+];
+
+const bottomMenuItems = [
+  { icon: Settings, label: "Settings", href: "/settings" },
+];
+
 export const Sidebar = () => {
   const location = useLocation();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
   const handleLogout = () => {
     setShowLogoutDialog(false);
     toast({
       title: "Logged out",
-      description: "You have been successfully logged out"
+      description: "You have been successfully logged out",
     });
   };
-  return <aside className="w-64 bg-card border-r border-border flex flex-col h-screen sticky top-0">
+
+  return (
+    <aside className="w-64 bg-card border-r border-border flex flex-col h-screen sticky top-0">
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center gap-2">
@@ -57,32 +46,58 @@ export const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map(item => {
-        const isActive = location.pathname === item.href;
-        return <Button key={item.label} variant="ghost" asChild className={`w-full justify-start gap-3 ${isActive ? "bg-primary/10 text-primary hover:bg-primary/15" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Button
+              key={item.label}
+              variant="ghost"
+              asChild
+              className={`w-full justify-start gap-3 ${
+                isActive
+                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
               <Link to={item.href}>
                 <item.icon className="w-5 h-5" />
                 <span className="flex-1 text-left">{item.label}</span>
               </Link>
-            </Button>;
-      })}
+            </Button>
+          );
+        })}
 
         <div className="my-4 border-t border-border" />
 
-        {bottomMenuItems.map(item => {
-        const isActive = location.pathname === item.href;
-        return <Button key={item.label} variant="ghost" asChild className={`w-full justify-start gap-3 ${isActive ? "bg-primary/10 text-primary hover:bg-primary/15" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>
+        {bottomMenuItems.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Button
+              key={item.label}
+              variant="ghost"
+              asChild
+              className={`w-full justify-start gap-3 ${
+                isActive
+                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
               <Link to={item.href}>
                 <item.icon className="w-5 h-5" />
                 <span className="flex-1 text-left">{item.label}</span>
               </Link>
-            </Button>;
-      })}
+            </Button>
+          );
+        })}
       </nav>
 
       {/* Help & Support */}
       <div className="p-4 border-t border-border space-y-3">
-        <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted" onClick={() => window.open("https://t.me/hookly_support", "_blank")}>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-muted"
+          onClick={() => window.open("https://t.me/hookly_support", "_blank")}
+        >
           <HelpCircle className="w-5 h-5" />
           <span className="flex-1 text-left">Help & Support</span>
         </Button>
@@ -103,8 +118,6 @@ export const Sidebar = () => {
               </div>
             </div>
           </div>
-          
-          
         </div>
       </div>
 
@@ -125,5 +138,6 @@ export const Sidebar = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </aside>;
+    </aside>
+  );
 };

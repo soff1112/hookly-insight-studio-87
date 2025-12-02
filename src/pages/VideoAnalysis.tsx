@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/Sidebar";
+import { ProjectAccountSelector } from "@/components/ProjectAccountSelector";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ interface VideoData {
   mediaUrl: string;
   competitorId: string;
   username: string;
+  source: string;
   inWork: boolean;
   platform: "Instagram" | "TikTok" | "YouTube";
   coverUrl: string;
@@ -79,6 +81,7 @@ const VideoAnalysis = () => {
       mediaUrl: "https://www.instagram.com/reel/example1",
       competitorId: "comp_1",
       username: "creator_pro",
+      source: "@yourbrand",
       inWork: false,
       platform: "Instagram",
       coverUrl: "/placeholder.svg",
@@ -91,7 +94,7 @@ const VideoAnalysis = () => {
       daysAgo: 2,
       postedAt: "Oct 27",
       tags: ["viral", "content"],
-      description: "До зустрічі ❤️ квитки в біо",
+      description: "Stop scrolling if you want to grow faster...",
       extractedText: "Stop scrolling if you want to grow faster...",
     },
     {
@@ -99,6 +102,7 @@ const VideoAnalysis = () => {
       mediaUrl: "https://www.tiktok.com/@user/video/example2",
       competitorId: "comp_2",
       username: "viral_maker",
+      source: "@competitor_x",
       inWork: false,
       platform: "TikTok",
       coverUrl: "/placeholder.svg",
@@ -112,6 +116,26 @@ const VideoAnalysis = () => {
       postedAt: "Oct 28",
       tags: [],
       description: "Learn the secrets to viral content 🚀 #contentcreator #viral",
+    },
+    {
+      id: "3",
+      mediaUrl: "https://www.instagram.com/reel/example3",
+      competitorId: "comp_3",
+      username: "beauty_guru",
+      source: "@beauty_ig",
+      inWork: true,
+      platform: "Instagram",
+      coverUrl: "/placeholder.svg",
+      virality: 78,
+      views: 156000,
+      duration: 45,
+      likes: 12400,
+      comments: 189,
+      reposts: 423,
+      daysAgo: 3,
+      postedAt: "Oct 26",
+      tags: ["beauty", "tutorial"],
+      description: "My morning skincare routine ✨",
     },
   ]);
 
@@ -220,9 +244,9 @@ const VideoAnalysis = () => {
   };
 
   const getViralityColor = (virality: number) => {
-    if (virality >= 90) return "bg-green-500";
-    if (virality >= 70) return "bg-yellow-500";
-    return "bg-orange-500";
+    if (virality >= 90) return "text-green-500";
+    if (virality >= 70) return "text-yellow-500";
+    return "text-orange-500";
   };
 
   const filteredVideos = videos.filter(
@@ -247,6 +271,9 @@ const VideoAnalysis = () => {
               Analyze competitor video performance and extract insights
             </p>
           </div>
+
+          {/* Project/Account Selector */}
+          <ProjectAccountSelector />
 
           {/* Filters */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -320,13 +347,12 @@ const VideoAnalysis = () => {
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={selectedIds.length === filteredVideos.length}
+                      checked={selectedIds.length === filteredVideos.length && filteredVideos.length > 0}
                       onCheckedChange={toggleSelectAll}
                     />
                   </TableHead>
-                  <TableHead className="w-[40px]">ID</TableHead>
                   <TableHead className="w-[80px]">Video</TableHead>
-                  <TableHead className="w-[120px]">URL</TableHead>
+                  <TableHead className="w-[120px]">Source</TableHead>
                   <TableHead className="w-[140px]">User</TableHead>
                   <TableHead className="w-[80px] text-center">In Work</TableHead>
                   <TableHead className="w-[80px]">Platform</TableHead>
@@ -335,16 +361,14 @@ const VideoAnalysis = () => {
                   <TableHead className="w-[60px] text-right">Time</TableHead>
                   <TableHead className="w-[70px] text-right">Likes</TableHead>
                   <TableHead className="w-[80px] text-right">Comments</TableHead>
-                  <TableHead className="w-[70px] text-right">Reposts</TableHead>
                   <TableHead className="w-[70px] text-right">Days Ago</TableHead>
-                  <TableHead className="w-[100px]">Posted</TableHead>
                   <TableHead className="w-[100px]">Tags</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredVideos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={16} className="h-32 text-center">
+                    <TableCell colSpan={13} className="h-32 text-center">
                       <p className="text-muted-foreground">
                         No videos found for the selected time period
                       </p>
@@ -362,9 +386,6 @@ const VideoAnalysis = () => {
                           onCheckedChange={() => toggleSelect(video.id)}
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
-                        {video.id}
-                      </TableCell>
                       <TableCell>
                         <div
                           className="relative w-16 h-16 rounded cursor-pointer hover:opacity-80 transition-opacity group"
@@ -381,15 +402,9 @@ const VideoAnalysis = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <a
-                          href={video.mediaUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-primary hover:underline text-xs"
-                        >
-                          {shortenUrl(video.mediaUrl)}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                        <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
+                          {video.source}
+                        </Badge>
                       </TableCell>
                       <TableCell className="font-medium text-sm">
                         @{video.username}
@@ -405,7 +420,7 @@ const VideoAnalysis = () => {
                       <TableCell>
                         <div className="space-y-1">
                           <Progress value={video.virality} className="h-2" />
-                          <span className={`text-xs font-semibold ${getViralityColor(video.virality).replace("bg-", "text-")}`}>
+                          <span className={`text-xs font-semibold ${getViralityColor(video.virality)}`}>
                             {video.virality}%
                           </span>
                         </div>
@@ -422,14 +437,8 @@ const VideoAnalysis = () => {
                       <TableCell className="text-right text-xs text-muted-foreground">
                         {formatNumber(video.comments)}
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        {formatNumber(video.reposts)}
-                      </TableCell>
                       <TableCell className="text-right text-xs">
                         {video.daysAgo}d
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {video.postedAt}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
@@ -483,98 +492,79 @@ const VideoAnalysis = () => {
                 <img
                   src={selectedVideo.coverUrl}
                   alt="Video cover"
-                  className="w-full h-full object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-                <Button size="sm" variant="outline" asChild>
-                  <a
-                    href={selectedVideo.mediaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Original Link
-                  </a>
-                </Button>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="p-4 text-center">
+                  <div className="text-2xl font-bold text-foreground">
+                    {formatNumber(selectedVideo.views)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Views</div>
+                </Card>
+                <Card className="p-4 text-center">
+                  <div className="text-2xl font-bold text-foreground">
+                    {formatNumber(selectedVideo.likes)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Likes</div>
+                </Card>
+                <Card className="p-4 text-center">
+                  <div className="text-2xl font-bold text-foreground">
+                    {formatNumber(selectedVideo.comments)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Comments</div>
+                </Card>
+                <Card className="p-4 text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    {selectedVideo.virality}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Virality</div>
+                </Card>
               </div>
 
               {/* Description */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Description</h3>
-                <p className="text-sm text-muted-foreground">
-                  {selectedVideo.description || "No description available"}
-                </p>
-              </div>
+              {selectedVideo.description && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">Description</h3>
+                  <p className="text-muted-foreground">{selectedVideo.description}</p>
+                </div>
+              )}
 
-              {/* Extracted Text */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Extracted Text</h3>
-                <p className="text-sm text-muted-foreground">
-                  {selectedVideo.extractedText || "[AI hook extraction not available]"}
-                </p>
-              </div>
-
-              {/* Transcript */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Transcript</h3>
-                {selectedVideo.transcript ? (
-                  <p className="text-sm text-muted-foreground">
-                    {selectedVideo.transcript}
-                  </p>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      Not transcribed
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleTranscribe}
-                      disabled={transcribing}
-                    >
-                      {transcribing ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Transcribing...
-                        </>
-                      ) : (
-                        <>
-                          <FileText className="h-4 w-4 mr-2" />
-                          Transcribe Now
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Take to Work */}
-              <div className="flex gap-2 pt-4 border-t">
-                <Checkbox
-                  checked={selectedVideo.inWork}
-                  onCheckedChange={handleTakeToWork}
-                  id="in-work"
-                />
-                <label htmlFor="in-work" className="text-sm font-medium cursor-pointer">
-                  In Work
-                </label>
+              {/* Actions */}
+              <div className="flex gap-3">
                 <Button
-                  size="sm"
-                  className="ml-auto bg-primary"
+                  onClick={handleTranscribe}
+                  disabled={transcribing}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  {transcribing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileText className="h-4 w-4 mr-2" />
+                  )}
+                  {transcribing ? "Transcribing..." : "Transcribe"}
+                </Button>
+                <Button
                   onClick={handleTakeToWork}
-                  disabled={selectedVideo.inWork}
+                  className="flex-1 bg-primary hover:bg-primary/90"
                 >
                   <ArrowRight className="h-4 w-4 mr-2" />
                   Take to Work
                 </Button>
               </div>
+
+              {/* Transcript */}
+              {selectedVideo.transcript && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">Transcript</h3>
+                  <p className="text-sm text-muted-foreground bg-muted p-4 rounded-lg">
+                    {selectedVideo.transcript}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
