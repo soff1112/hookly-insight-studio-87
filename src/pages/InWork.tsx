@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/Sidebar";
+import { ProjectAccountSelector } from "@/components/ProjectAccountSelector";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,6 +37,7 @@ interface VideoInWork {
   id: string;
   coverUrl: string;
   username: string;
+  source: string;
   virality: number;
   views: number;
   likes: number;
@@ -54,6 +56,7 @@ const InWork = () => {
       id: "1",
       coverUrl: "/placeholder.svg",
       username: "creator_pro",
+      source: "@yourbrand",
       virality: 87,
       views: 245000,
       likes: 18500,
@@ -62,6 +65,7 @@ const InWork = () => {
       id: "2",
       coverUrl: "/placeholder.svg",
       username: "viral_maker",
+      source: "@competitor_x",
       virality: 92,
       views: 512000,
       likes: 42300,
@@ -78,10 +82,9 @@ const InWork = () => {
     setLoading(true);
     setAiModal({ type, videoId });
 
-    // Simulate AI generation
     setTimeout(() => {
       let data: any = {};
-      
+
       switch (type) {
         case "script":
           data = {
@@ -188,6 +191,9 @@ const InWork = () => {
             </p>
           </div>
 
+          {/* Project/Account Selector */}
+          <ProjectAccountSelector />
+
           {/* Table */}
           <Card className="border-border shadow-card overflow-hidden">
             <div className="overflow-x-auto">
@@ -196,6 +202,7 @@ const InWork = () => {
                   <TableRow>
                     <TableHead>ID</TableHead>
                     <TableHead>Cover</TableHead>
+                    <TableHead>Source</TableHead>
                     <TableHead>User</TableHead>
                     <TableHead className="text-right">Virality</TableHead>
                     <TableHead className="text-right">Views</TableHead>
@@ -206,7 +213,7 @@ const InWork = () => {
                 <TableBody>
                   {videos.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center">
+                      <TableCell colSpan={8} className="h-32 text-center">
                         <p className="text-muted-foreground">
                           No videos in workspace. Add videos from Video Analysis.
                         </p>
@@ -224,6 +231,11 @@ const InWork = () => {
                             alt="Cover"
                             className="w-20 h-20 object-cover rounded"
                           />
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
+                            {video.source}
+                          </Badge>
                         </TableCell>
                         <TableCell className="font-semibold">
                           @{video.username}
@@ -244,7 +256,7 @@ const InWork = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/40"
+                              className="h-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40"
                               onClick={() => handleAIAction("script", video.id)}
                             >
                               <FileText className="h-3 w-3 mr-1" />
@@ -253,7 +265,7 @@ const InWork = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/40"
+                              className="h-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40"
                               onClick={() => handleAIAction("caption", video.id)}
                             >
                               <MessageSquare className="h-3 w-3 mr-1" />
@@ -262,7 +274,7 @@ const InWork = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/40"
+                              className="h-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40"
                               onClick={() => handleAIAction("hooks", video.id)}
                             >
                               <Lightbulb className="h-3 w-3 mr-1" />
@@ -271,7 +283,7 @@ const InWork = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/40"
+                              className="h-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40"
                               onClick={() => handleAIAction("subtitles", video.id)}
                             >
                               <Captions className="h-3 w-3 mr-1" />
@@ -280,7 +292,7 @@ const InWork = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 hover:border-primary/40"
+                              className="h-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40"
                               onClick={() => handleAIAction("variants", video.id)}
                             >
                               <BarChart3 className="h-3 w-3 mr-1" />
@@ -407,23 +419,23 @@ const InWork = () => {
                   <Textarea
                     value={aiModal.data.srt}
                     readOnly
-                    className="min-h-[300px] font-mono text-xs"
+                    className="min-h-[300px] font-mono text-sm"
                   />
                   <div className="flex gap-2">
                     <Button
                       size="sm"
-                      onClick={() => downloadSRT(aiModal.data.srt)}
-                    >
-                      <Download className="h-3 w-3 mr-1" />
-                      Download .srt
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
                       onClick={() => copyToClipboard(aiModal.data.srt)}
                     >
                       <Copy className="h-3 w-3 mr-1" />
                       Copy
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadSRT(aiModal.data.srt)}
+                    >
+                      <Download className="h-3 w-3 mr-1" />
+                      Download .srt
                     </Button>
                   </div>
                 </div>
@@ -434,17 +446,14 @@ const InWork = () => {
                 <div className="space-y-3">
                   {aiModal.data.variants.map((variant: string, idx: number) => (
                     <Card key={idx} className="p-4 border-border">
-                      <div className="flex items-start justify-between mb-2">
-                        <Badge variant="secondary">Variant {String.fromCharCode(65 + idx)}</Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => copyToClipboard(variant)}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                      <p className="text-sm">{variant}</p>
+                      <p className="text-sm mb-3">{variant}</p>
+                      <Button
+                        size="sm"
+                        onClick={() => copyToClipboard(variant)}
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Copy
+                      </Button>
                     </Card>
                   ))}
                 </div>
