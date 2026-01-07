@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { CompetitorPerformanceChart } from "@/components/CompetitorPerformanceChart";
 import { EngagementByPlatformChart } from "@/components/EngagementByPlatformChart";
 import { PostingRhythmTable } from "@/components/PostingRhythmTable";
 import { AIInsightCard } from "@/components/AIInsightCard";
-import { AIStrategyModal } from "@/components/AIStrategyModal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,8 @@ import {
   Target,
   BarChart3,
   Clock,
-  Zap
+  Zap,
+  ArrowRight
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -30,7 +31,6 @@ const COLORS = ["hsl(163 82% 36%)", "hsl(var(--primary))"];
 const AIInsights = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [timePeriod, setTimePeriod] = useState("7D");
-  const [showStrategyModal, setShowStrategyModal] = useState(false);
 
   const timePeriods = ["1D", "2D", "3D", "7D", "All"];
 
@@ -251,10 +251,10 @@ const AIInsights = () => {
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-primary" />
-                      AI Strategy Generator
+                      AI Strategy Workspace
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Generate a personalized marketing research report based on your account + 5 competitors' data.
+                      Generate personalized marketing strategies with SWOT analysis, 90-day action plans, and interactive follow-up conversations.
                     </p>
                   </div>
 
@@ -269,17 +269,20 @@ const AIInsights = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-accent" />
-                      Personalized to your style: Energetic & Educational
+                      ChatGPT-style follow-up conversations
                     </div>
                   </div>
 
                   <Button 
                     size="lg" 
                     className="w-full gap-2 group"
-                    onClick={() => setShowStrategyModal(true)}
+                    asChild
                   >
-                    <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    Generate Marketing Strategy
+                    <Link to="/marketing-strategy">
+                      <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      Open Marketing Strategy
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Link>
                   </Button>
                 </div>
 
@@ -296,8 +299,6 @@ const AIInsights = () => {
           </div>
         </div>
       </main>
-
-      <AIStrategyModal open={showStrategyModal} onOpenChange={setShowStrategyModal} />
     </div>
   );
 };
