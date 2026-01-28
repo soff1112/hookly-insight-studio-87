@@ -35,7 +35,15 @@ export const ProjectAccountSelector = () => {
   };
 
   return (
-    <div className="flex items-center gap-2 p-4 bg-card rounded-xl border border-border shadow-card">
+    <div className="flex items-center gap-2">
+      <Folder className="h-4 w-4 text-primary" />
+      <span className="font-medium text-foreground">Workspace: yoga</span>
+    </div>
+  );
+
+  // Original selector code (hidden for now)
+  return (
+    <div className="flex items-center gap-2 p-4 bg-card rounded-xl border border-border shadow-card hidden">
       {/* Project Selector */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
