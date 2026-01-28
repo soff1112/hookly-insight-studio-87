@@ -16,7 +16,8 @@ import {
   Search, 
   Sparkles, 
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  Brain
 } from "lucide-react";
 
 const AIInsights = () => {
@@ -40,15 +41,18 @@ const AIInsights = () => {
           {/* Header */}
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="space-y-2">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Brain className="w-8 h-8 text-primary" />
                 <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
-                <ProjectAccountSelector />
               </div>
               <p className="text-muted-foreground">
-                Deep competitive intelligence • Real-time analytics • AI-powered recommendations
+                Deep competitive intelligence • 5-10 tracked accounts • Personalized strategy generation
               </p>
-              <div className="flex items-center gap-2 text-sm">
-                <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
+              <div className="flex items-center gap-3 mt-2">
+                <ProjectAccountSelector />
+              </div>
+              <div className="flex items-center gap-2 text-sm mt-2">
+                <Badge variant="secondary" className="bg-primary/10 text-primary">
                   5 accounts connected
                 </Badge>
                 <Badge variant="outline">Pro Plan</Badge>
@@ -89,7 +93,7 @@ const AIInsights = () => {
                 disabled={isRegenerating}
               >
                 <RefreshCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-                Regenerate Tip
+                Regenerate
               </Button>
             </div>
           </div>
