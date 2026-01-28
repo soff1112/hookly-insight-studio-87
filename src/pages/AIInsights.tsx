@@ -1,13 +1,27 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+
+// Legacy components (keeping for now)
 import { CompetitorPerformanceChart } from "@/components/CompetitorPerformanceChart";
 import { EngagementByPlatformChart } from "@/components/EngagementByPlatformChart";
-import { PostingRhythmTable } from "@/components/PostingRhythmTable";
+import { PostingRhythmTable as LegacyPostingRhythmTable } from "@/components/PostingRhythmTable";
 import { PlatformStatsDashboard } from "@/components/analytics/PlatformStatsDashboard";
 import { BloggerStatsTable } from "@/components/analytics/BloggerStatsTable";
 import { VideoStatsTable } from "@/components/analytics/VideoStatsTable";
 import { EngagementHeatmap } from "@/components/analytics/EngagementHeatmap";
+
+// New workspace-aware components
+import { WorkspaceSwitcher } from "@/components/workspace/WorkspaceSwitcher";
+import { CompetitorSelector } from "@/components/workspace/CompetitorSelector";
+import { TimeRangeSelector } from "@/components/dashboard/TimeRangeSelector";
+import { RankingCard } from "@/components/dashboard/RankingCard";
+import { PerformanceOverviewChart } from "@/components/dashboard/PerformanceOverviewChart";
+import { PlatformEngagementChart } from "@/components/dashboard/PlatformEngagementChart";
+import { PostingRhythmTable } from "@/components/dashboard/PostingRhythmTable";
+import { OptimalTimesHeatmap } from "@/components/dashboard/OptimalTimesHeatmap";
+import { AIInsightsHub } from "@/components/dashboard/AIInsightsHub";
+
 import { 
   CompetitorAlertCard, 
   EngagementGapCard, 
@@ -23,29 +37,18 @@ import {
   Sparkles, 
   ArrowRight,
   Layers,
-  Download
+  Download,
+  RefreshCw
 } from "lucide-react";
-
-// Project-level analytics mock data
-const projectAnalytics = [
-  { name: "Yoga Studio", views: 156000, engagement: 8200, er: 5.3, posts: 42, momentum: 12.5 },
-  { name: "Crypto Blog", views: 89000, engagement: 3100, er: 3.5, posts: 28, momentum: -2.1 },
-  { name: "Beauty Brand", views: 234000, engagement: 15600, er: 6.7, posts: 68, momentum: 18.2 },
-  { name: "Fitness Coach", views: 112000, engagement: 7800, er: 7.0, posts: 35, momentum: 8.4 },
-];
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 const AIInsights = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [timePeriod, setTimePeriod] = useState("7D");
   const [activeTab, setActiveTab] = useState("overview");
+  const { activeWorkspace, getMainAccount, getTopCompetitors } = useWorkspace();
 
-  const timePeriods = ["1D", "2D", "3D", "7D", "All"];
-
-  // Calculate aggregated metrics
-  const totalViews = projectAnalytics.reduce((sum, p) => sum + p.views, 0);
-  const avgER = (projectAnalytics.reduce((sum, p) => sum + p.er, 0) / projectAnalytics.length).toFixed(1);
-  const topProject = [...projectAnalytics].sort((a, b) => b.momentum - a.momentum)[0];
-  const underperformingProject = [...projectAnalytics].sort((a, b) => a.momentum - b.momentum)[0];
+  const mainAccount = getMainAccount();
+  const competitors = getTopCompetitors(5);
 
   return (
     <div className="flex min-h-screen bg-background w-full">
@@ -53,19 +56,22 @@ const AIInsights = () => {
       
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-[1800px] mx-auto space-y-6">
-          {/* Header */}
+          {/* Header with Workspace Switcher */}
           <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <WorkspaceSwitcher />
+                <h1 className="text-2xl font-bold text-foreground">AI Insights</h1>
+              </div>
               <p className="text-muted-foreground">
-                Enterprise-grade analytics • 100+ creators • AI-powered strategic insights
+                Enterprise-grade analytics • {competitors.length + 1} tracked accounts • AI-powered strategic insights
               </p>
               <div className="flex items-center gap-2 text-sm">
                 <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
-                  8 competitors tracked
+                  {activeWorkspace?.niche || 'All Niches'}
                 </Badge>
                 <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  4 projects • 100+ bloggers
+                  {mainAccount?.platform || 'Multi-Platform'}
                 </Badge>
                 <Badge variant="outline">Pro Plan</Badge>
               </div>
@@ -76,25 +82,14 @@ const AIInsights = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
                   placeholder="Search insights..." 
-                  className="pl-10 w-[250px]"
+                  className="pl-10 w-[200px]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               
-              <div className="flex gap-1">
-                {timePeriods.map((period) => (
-                  <Button
-                    key={period}
-                    variant={timePeriod === period ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setTimePeriod(period)}
-                    className="text-xs"
-                  >
-                    {period}
-                  </Button>
-                ))}
-              </div>
+              <TimeRangeSelector />
+              <CompetitorSelector />
 
               <Button variant="outline" size="sm" className="gap-2">
                 <Download className="w-4 h-4" />
@@ -102,187 +97,112 @@ const AIInsights = () => {
               </Button>
 
               <Button variant="outline" size="sm" className="gap-2">
-                <Sparkles className="w-4 h-4" />
-                Regenerate
+                <RefreshCw className="w-4 h-4" />
+                Refresh
               </Button>
             </div>
           </div>
 
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-[800px] grid-cols-5">
+            <TabsList className="grid w-full max-w-[900px] grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="platforms">Platforms</TabsTrigger>
               <TabsTrigger value="bloggers">Bloggers</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
-              <TabsTrigger value="engagement">Engagement</TabsTrigger>
+              <TabsTrigger value="timing">Timing</TabsTrigger>
             </TabsList>
 
-            {/* Overview Tab */}
+            {/* Overview Tab - New Workspace-Aware Components */}
             <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {/* Left Column - Analytics (60%) */}
-                <div className="lg:col-span-3 space-y-6">
-                  <CompetitorPerformanceChart />
-                  <EngagementByPlatformChart />
-                  <PostingRhythmTable />
-
-                  {/* Project-Level Analytics Card */}
-                  <div className="p-6 rounded-lg border border-border bg-card shadow-card space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Layers className="w-5 h-5 text-primary" />
-                      <h3 className="text-lg font-semibold text-foreground">Project-Level Analytics</h3>
-                      <Badge variant="outline" className="text-xs">Cross-Niche Comparison</Badge>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground">
-                      Aggregated performance across all projects • Normalized by content volume
-                    </p>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                        <div className="text-xs text-muted-foreground">Total Views</div>
-                        <div className="text-lg font-semibold text-foreground">{(totalViews / 1000).toFixed(0)}K</div>
-                        <div className="text-xs text-accent">+12.4% vs last period</div>
-                      </div>
-                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                        <div className="text-xs text-muted-foreground">Avg ER Across Projects</div>
-                        <div className="text-lg font-semibold text-foreground">{avgER}%</div>
-                        <div className="text-xs text-muted-foreground">Industry avg: 4.2%</div>
-                      </div>
-                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                        <div className="text-xs text-muted-foreground">Top Performer</div>
-                        <div className="text-lg font-semibold text-foreground">{topProject.name}</div>
-                        <div className="text-xs text-accent">+{topProject.momentum}% momentum</div>
-                      </div>
-                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                        <div className="text-xs text-muted-foreground">Needs Attention</div>
-                        <div className="text-lg font-semibold text-foreground">{underperformingProject.name}</div>
-                        <div className="text-xs text-destructive">{underperformingProject.momentum}% momentum</div>
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-border">
-                            <th className="text-left py-2 font-medium text-muted-foreground">Project</th>
-                            <th className="text-right py-2 font-medium text-muted-foreground">Views</th>
-                            <th className="text-right py-2 font-medium text-muted-foreground">ER %</th>
-                            <th className="text-right py-2 font-medium text-muted-foreground">Posts</th>
-                            <th className="text-right py-2 font-medium text-muted-foreground">Momentum</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {projectAnalytics.map((project) => (
-                            <tr key={project.name} className="border-b border-border/50">
-                              <td className="py-2 font-medium text-foreground">{project.name}</td>
-                              <td className="py-2 text-right text-foreground">{(project.views / 1000).toFixed(0)}K</td>
-                              <td className="py-2 text-right text-foreground">{project.er}%</td>
-                              <td className="py-2 text-right text-foreground">{project.posts}</td>
-                              <td className={`py-2 text-right font-medium ${project.momentum >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                                {project.momentum > 0 ? '+' : ''}{project.momentum}%
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
-                      <p className="text-sm font-semibold text-foreground">
-                        💡 Resource Allocation Insight
-                      </p>
-                      <p className="text-sm text-foreground">
-                        <strong>{topProject.name}</strong> shows +{topProject.momentum}% momentum with highest ER ({topProject.er}%). 
-                        Consider reallocating 20% of <strong>{underperformingProject.name}</strong> content effort to capitalize on this outperformance.
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        <strong>Niche comparison:</strong> Lifestyle niches (Beauty, Fitness) outperform technical niches (Crypto) by ~40% ER on average.
-                      </p>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Ranking Card */}
+                <div className="lg:col-span-1">
+                  <RankingCard />
                 </div>
+                
+                {/* AI Insights */}
+                <div className="lg:col-span-3">
+                  <AIInsightsHub />
+                </div>
+              </div>
 
-                {/* Right Column - Insights (40%) */}
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="space-y-4">
+              {/* Charts Row */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <PerformanceOverviewChart />
+                <PlatformEngagementChart />
+              </div>
+
+              {/* Posting Rhythm */}
+              <PostingRhythmTable />
+
+              {/* Generate Strategy CTA */}
+              <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-xl p-6 space-y-4 border border-primary/20">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="space-y-2">
                     <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-primary" />
-                      Key Insights
+                      AI Strategy Workspace
                     </h3>
-
-                    <CompetitorAlertCard
-                      competitorHandle="@topcompetitor"
-                      followerGain="5.2%"
-                      strategy="short hooks (under 15s)"
-                      theirDuration="12.4s"
-                      yourDuration="28.2s"
-                      topHookPatterns={["Question (32%)", "Shock (28%)", "Emotional (24%)"]}
-                      potentialViewsIncrease="+12%"
-                      onRegenerateHooks={() => console.log("Regenerate hooks")}
-                    />
-
-                    <EngagementGapCard
-                      userER={4.2}
-                      competitorAvgER={5.5}
-                      topPerformerER={6.8}
-                      gapPercent="38%"
-                      platformRecommendation="Your TikTok ER (8.1%) exceeds Instagram (4.2%) by 93%. Platform mismatch: underposting on strongest channel."
-                      onViewBreakdown={() => console.log("View breakdown")}
-                    />
-
-                    <ViralityTrendsCard
-                      viralityRange="87-92%"
-                      topVideos={[
-                        { title: "This stretch changed my life", virality: 92 },
-                        { title: "Glass skin routine you NEED", virality: 89 },
-                        { title: "Why you're not seeing results", virality: 87 },
-                      ]}
-                      hookPatternToReplicate="Educational hooks in fashion niche with emotional storytelling format"
-                      onAnalyzeVideos={() => console.log("Analyze videos")}
-                    />
-
-                    <ContentFrequencyCard
-                      userPostsPerDay={2.3}
-                      topPerformerRange="8-10"
-                      gapPercent="77%"
-                      expectedLift="+25-40%"
-                    />
+                    <p className="text-sm text-muted-foreground max-w-lg">
+                      Generate personalized marketing strategies with SWOT analysis, 90-day action plans, 
+                      and interactive follow-up conversations based on your workspace data.
+                    </p>
                   </div>
 
-                  {/* Generate Strategy CTA */}
-                  <div className="sticky top-6 space-y-4">
-                    <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-lg p-6 space-y-4 border border-primary/20">
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-primary" />
-                          AI Strategy Workspace
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Generate personalized marketing strategies with SWOT analysis, 90-day action plans, and interactive follow-up conversations.
-                        </p>
-                      </div>
-
-                      <Button 
-                        size="lg" 
-                        className="w-full gap-2 group"
-                        asChild
-                      >
-                        <Link to="/marketing-strategy">
-                          <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                          Open Marketing Strategy
-                          <ArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
+                  <Button 
+                    size="lg" 
+                    className="gap-2 group"
+                    asChild
+                  >
+                    <Link to="/marketing-strategy">
+                      <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      Open Marketing Strategy
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </TabsContent>
 
+            {/* Performance Tab - Detailed competitor analysis */}
+            <TabsContent value="performance" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <PerformanceOverviewChart />
+                </div>
+                <RankingCard />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <CompetitorAlertCard
+                  competitorHandle={competitors[0]?.handle || "@top_competitor"}
+                  followerGain="5.2%"
+                  strategy="short hooks (under 15s)"
+                  theirDuration={`${competitors[0]?.metrics.avgVideoDuration || 12}s`}
+                  yourDuration={`${mainAccount?.metrics.avgVideoDuration || 28}s`}
+                  topHookPatterns={["Question (32%)", "Shock (28%)", "Emotional (24%)"]}
+                  potentialViewsIncrease="+12%"
+                  onRegenerateHooks={() => console.log("Regenerate hooks")}
+                />
+
+                <EngagementGapCard
+                  userER={mainAccount?.metrics.engagementRate || 4.2}
+                  competitorAvgER={5.5}
+                  topPerformerER={competitors[0]?.metrics.engagementRate || 6.8}
+                  gapPercent="38%"
+                  platformRecommendation="Your TikTok ER (8.1%) exceeds Instagram (4.2%) by 93%. Platform mismatch: underposting on strongest channel."
+                  onViewBreakdown={() => console.log("View breakdown")}
+                />
+              </div>
+
+              <PostingRhythmTable />
+            </TabsContent>
+
             {/* Platforms Tab */}
             <TabsContent value="platforms" className="space-y-6">
+              <PlatformEngagementChart />
               <PlatformStatsDashboard />
               <EngagementByPlatformChart />
             </TabsContent>
@@ -297,10 +217,10 @@ const AIInsights = () => {
               <VideoStatsTable />
             </TabsContent>
 
-            {/* Engagement Tab */}
-            <TabsContent value="engagement" className="space-y-6">
+            {/* Timing Tab */}
+            <TabsContent value="timing" className="space-y-6">
+              <OptimalTimesHeatmap />
               <EngagementHeatmap />
-              <PostingRhythmTable />
             </TabsContent>
           </Tabs>
         </div>
