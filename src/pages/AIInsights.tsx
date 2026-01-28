@@ -48,9 +48,7 @@ const AIInsights = () => {
                 <Brain className="w-8 h-8 text-primary" />
                 <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
               </div>
-              <p className="text-muted-foreground">
-                Deep competitive intelligence • 5 tracked accounts • Personalized strategy generation
-              </p>
+              <p className="text-muted-foreground">Deep competitive intelligence </p>
               <div className="flex items-center gap-3 mt-2">
                 <ProjectAccountSelector />
               </div>
@@ -113,9 +111,7 @@ const AIInsights = () => {
           {/* LEVEL 3: Actionable Strategy Insights */}
           <section id="strategy-insights" className="space-y-6">
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => toggleSection('strategy')}>
-              <Badge variant="secondary" className="bg-accent/10 text-accent text-[10px]">
-                LEVEL 3
-              </Badge>
+              
               <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
                 Actionable Strategy
               </h2>
@@ -136,9 +132,7 @@ const AIInsights = () => {
           {/* LEVEL 4: Deep Dive Analytics */}
           <section id="deep-dive" className="space-y-6">
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => toggleSection('deepdive')}>
-              <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 text-[10px]">
-                LEVEL 4
-              </Badge>
+              
               <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
                 Deep Dive Analytics
               </h2>
@@ -156,26 +150,7 @@ const AIInsights = () => {
           </section>
 
           {/* Strategy CTA - Sticky at bottom */}
-          <section className="sticky bottom-0 bg-gradient-to-t from-background via-background to-transparent pt-8 pb-4">
-            <div className="flex items-center justify-between bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-6 border border-primary/20">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  Ready to create your marketing strategy?
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Generate personalized SWOT analysis, 90-day action plans, and have AI-powered conversations about your growth.
-                </p>
-              </div>
-              <Button size="lg" className="gap-2 shrink-0" asChild>
-                <Link to="/marketing-strategy">
-                  <Sparkles className="w-5 h-5" />
-                  Open Strategy Workspace
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </section>
+          
         </div>
       </main>
     </div>;
