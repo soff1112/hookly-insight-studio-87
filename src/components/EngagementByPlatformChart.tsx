@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { DashboardCard } from "@/components/DashboardCard";
+import { SectionHeader } from "@/components/insights/SectionHeader";
+import { ChartCaption } from "@/components/insights/ChartCaption";
 import { BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const mockData = [
   { 
@@ -11,7 +14,8 @@ const mockData = [
     topcompetitor: 12.1, 
     viralcreator: 10.5, 
     contentking: 9.8,
-    views: 45000 
+    views: 45000,
+    competitorAvg: 10.8
   },
   { 
     name: "YouTube", 
@@ -19,7 +23,8 @@ const mockData = [
     topcompetitor: 8.2, 
     viralcreator: 6.9, 
     contentking: 7.4,
-    views: 89000 
+    views: 89000,
+    competitorAvg: 7.5
   },
   { 
     name: "Instagram", 
@@ -27,7 +32,8 @@ const mockData = [
     topcompetitor: 6.8, 
     viralcreator: 7.2, 
     contentking: 5.9,
-    views: 12000 
+    views: 12000,
+    competitorAvg: 6.6
   },
 ];
 
@@ -50,27 +56,53 @@ export const EngagementByPlatformChart = () => {
     setSortOrder(prev => prev === "asc" ? "desc" : "asc");
   };
 
+  // Calculate gaps
+  const platformGaps = mockData.map(p => ({
+    name: p.name,
+    gap: ((p.competitorAvg - p.user) / p.competitorAvg * 100).toFixed(1)
+  }));
+
   return (
     <DashboardCard>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Engagement Trends by Platform</h3>
-          </div>
+          <SectionHeader
+            level={2}
+            title="Engagement Trends by Platform"
+            subtitle="Engagement Rate (%) comparison: You vs. Top 3 Competitors"
+            timeRange="Last 7 days"
+            dataScope="3 platforms"
+            sampleSize="You + 3 competitors"
+            tooltip="Engagement Rate = (Likes + Comments) / Views × 100. Higher ER indicates stronger audience resonance."
+          />
           <Button 
             variant="outline" 
             size="sm"
             onClick={toggleSort}
-            className="text-xs"
+            className="text-xs shrink-0"
           >
             Sort {sortOrder === "asc" ? "↑" : "↓"}
           </Button>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Engagement Rate % - Top 3 Competitors vs. You
-        </p>
+        {/* Gap Summary */}
+        <div className="flex gap-2 flex-wrap">
+          {platformGaps.map(p => (
+            <Badge 
+              key={p.name}
+              variant="secondary" 
+              className={`text-xs ${
+                parseFloat(p.gap) > 20 
+                  ? "bg-destructive/10 text-destructive" 
+                  : parseFloat(p.gap) > 10 
+                  ? "bg-yellow-500/10 text-yellow-600"
+                  : "bg-accent/10 text-accent"
+              }`}
+            >
+              {p.name}: {parseFloat(p.gap) > 0 ? `-${p.gap}%` : `+${Math.abs(parseFloat(p.gap))}%`} vs avg
+            </Badge>
+          ))}
+        </div>
 
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={sortedData} layout="vertical" margin={{ left: 0, right: 30 }}>
@@ -80,7 +112,8 @@ export const EngagementByPlatformChart = () => {
               stroke="hsl(var(--muted-foreground))"
               fontSize={12}
               tickLine={false}
-              label={{ value: 'Engagement Rate (%)', position: 'insideBottom', offset: -5, style: { fontSize: 12, fill: 'hsl(var(--muted-foreground))' } }}
+              domain={[0, 14]}
+              label={{ value: 'Engagement Rate (%)', position: 'insideBottom', offset: -5, style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
             />
             <YAxis 
               type="category"
@@ -99,7 +132,7 @@ export const EngagementByPlatformChart = () => {
               }}
               formatter={(value: number, name: string) => {
                 const labels: Record<string, string> = {
-                  user: 'You',
+                  user: '🟢 You',
                   topcompetitor: '@topcompetitor',
                   viralcreator: '@viralcreator',
                   contentking: '@contentking'
@@ -140,9 +173,20 @@ export const EngagementByPlatformChart = () => {
                 {platform.name}
               </div>
               <div className="text-muted-foreground">{platform.views.toLocaleString()} views</div>
+              <div className="text-[10px] text-muted-foreground">
+                Your ER: <span className="font-medium text-foreground">{platform.user}%</span> • 
+                Avg: <span className="font-medium">{platform.competitorAvg}%</span>
+              </div>
             </div>
           ))}
         </div>
+
+        <ChartCaption
+          caption="TikTok shows your strongest relative performance (75% of competitor avg), while YouTube has the largest gap (47% of avg). Focus optimization efforts on YouTube content strategy."
+          dataSource="Platform native analytics APIs"
+          methodology="ER = (Likes + Comments) / Views × 100"
+          onShowData={() => console.log("Show raw data")}
+        />
       </div>
     </DashboardCard>
   );
