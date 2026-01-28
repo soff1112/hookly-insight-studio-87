@@ -409,33 +409,72 @@ export const VideoStatisticsTable = () => {
           </Table>
         </div>
 
-        {/* Pagination & Footer */}
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredVideos.length)} of {filteredVideos.length} videos
-            {minER[0] > 0 && ` • Filtered: ER ≥ ${minER[0]}%`}
-          </p>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="h-7"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
+        {/* Interpretation Row */}
+        <div className="pt-4 mt-2 border-t border-border/50">
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground text-xs uppercase tracking-wide">Interpretation: </span>
+              {anomalyCount} videos outperformed expectations (virality &gt;150%). TikTok content shows highest engagement rates. 
+              Analyze high-performers for replicable patterns.
+            </p>
+            <Badge 
+              variant="secondary" 
+              className="text-[10px] px-2 py-0.5 bg-muted/50 text-muted-foreground shrink-0"
             >
-              <ChevronLeft className="w-4 h-4" />
+              Based on {mockVideos.length} videos
+            </Badge>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredVideos.length)} of {filteredVideos.length} videos
+              {minER[0] > 0 && ` • Filtered: ER ≥ ${minER[0]}%`}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-7"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-xs font-medium px-2">
+                {currentPage} / {totalPages}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-7"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Bar */}
+        <div className="pt-3 mt-3 border-t border-border/30 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="default"
+              size="sm"
+              className="h-8 px-4 text-xs gap-1.5"
+              onClick={() => console.log("Analyze top videos")}
+            >
+              Find winning patterns
+              <ChevronRight className="w-3 h-3" />
             </Button>
-            <span className="text-xs font-medium px-2">
-              {currentPage} / {totalPages}
-            </span>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="ghost"
               size="sm"
-              className="h-7"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="h-8 px-3 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+              onClick={() => console.log("Export data")}
             >
-              <ChevronRight className="w-4 h-4" />
+              Export to CSV
             </Button>
           </div>
         </div>
