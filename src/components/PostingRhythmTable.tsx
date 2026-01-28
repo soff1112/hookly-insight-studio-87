@@ -162,9 +162,10 @@ export const PostingRhythmTable = () => {
           </Table>
         </div>
 
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+        <div className="bg-blue-500/5 border-l-4 border-blue-500 rounded-r-lg p-4">
           <p className="text-sm text-foreground">
-            <strong>💡 Strategy Insight:</strong> Top performers post 8-10 videos/day. Your current 2.3/day is 77% below the top tier. Testing a higher posting cadence could accelerate growth by matching competitor consistency.
+            <span className="mr-2">💡</span>
+            <strong>Strategy Insight:</strong> Top performers post 8-10 videos/day. Your current 2.3/day is 77% below the top tier. Testing a higher posting cadence could accelerate growth by matching competitor consistency.
           </p>
         </div>
       </div>

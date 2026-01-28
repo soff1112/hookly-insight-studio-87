@@ -1,18 +1,10 @@
 import { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { DashboardCard } from "@/components/DashboardCard";
 import { BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const mockData = [
-  { 
-    name: "Instagram", 
-    user: 4.2, 
-    topcompetitor: 6.8, 
-    viralcreator: 7.2, 
-    contentking: 5.9,
-    views: 12000 
-  },
   { 
     name: "TikTok", 
     user: 8.1, 
@@ -29,12 +21,20 @@ const mockData = [
     contentking: 7.4,
     views: 89000 
   },
+  { 
+    name: "Instagram", 
+    user: 4.2, 
+    topcompetitor: 6.8, 
+    viralcreator: 7.2, 
+    contentking: 5.9,
+    views: 12000 
+  },
 ];
 
 const platformColors: Record<string, string> = {
-  Instagram: "hsl(var(--primary))",
   TikTok: "hsl(240 10% 10%)",
-  YouTube: "hsl(0 84% 60%)"
+  YouTube: "hsl(0 84% 60%)",
+  Instagram: "hsl(var(--primary))"
 };
 
 export const EngagementByPlatformChart = () => {

@@ -40,7 +40,7 @@ export const CompetitorPerformanceChart = () => {
 
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={mockData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--primary) / 0.1)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis 
               dataKey="date" 
               stroke="hsl(var(--muted-foreground))"
@@ -126,9 +126,10 @@ export const CompetitorPerformanceChart = () => {
           </LineChart>
         </ResponsiveContainer>
 
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+        <div className="bg-primary/5 border-l-4 border-primary rounded-r-lg p-4">
           <p className="text-sm text-foreground">
-            <strong>💡 Insight:</strong> You're 3 spots from top—boost views by 15% via competitor-style hooks. Your growth is +2.8% vs top competitor's +5.2%.
+            <span className="mr-2">💡</span>
+            <strong>Insight:</strong> You're 3 spots from top—boost views by 15% via competitor-style hooks. Your growth is +2.8% vs top competitor's +5.2%.
           </p>
         </div>
       </div>
