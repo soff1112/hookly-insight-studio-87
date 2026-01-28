@@ -223,10 +223,10 @@ export const PostingRhythmTable = () => {
 
         <InsightBlock
           type="recommendation"
-          title="Increase posting frequency to close the gap"
-          content="Top performers post 8-10 videos/day. Your current 2.3/day is 77% below the top tier. Testing a higher posting cadence could accelerate growth by matching competitor consistency."
+          title="Close the posting frequency gap"
+          content="Top performers post 8-10 videos/day. Your current 2.3/day is 77% below the top tier. Test increasing to 5/day for 30 days to match competitor consistency."
           impact="+25-40% reach"
-          dataReference="Based on top 3 performers' posting patterns"
+          dataReference="Top 3 performers' posting patterns"
           sampleSize="7-day posting history"
           timeWindow="Last 7 days"
           actionLabel="Create content plan"

@@ -264,12 +264,24 @@ export const BloggerStatisticsChart = () => {
           </div>
         </div>
 
-        {/* Data Source Footer */}
-        <div className="text-[10px] text-muted-foreground pt-2 border-t border-border/50 flex items-center justify-between">
-          <span>Source: Platform native analytics • Updated: 2 min ago</span>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px]">
-            Export CSV
-          </Button>
+        {/* Interpretation + Action */}
+        <div className="pt-4 mt-2 border-t border-border/50">
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground text-xs uppercase tracking-wide">Interpretation: </span>
+              Top 3 creators contribute {(mockBloggers.slice(0, 3).reduce((sum, b) => sum + b.contributionShare, 0)).toFixed(1)}% of total views. 
+              {anomalies.length > 0 && ` ${anomalies.length} creators show unusual weekly changes—investigate content patterns.`}
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] text-muted-foreground">
+              <span className="font-medium uppercase tracking-wide">Source:</span> Platform native analytics • Updated: 2 min ago
+            </div>
+            <Button variant="ghost" size="sm" className="h-7 px-2.5 text-[11px] gap-1.5">
+              Export CSV
+            </Button>
+          </div>
         </div>
       </div>
     </DashboardCard>

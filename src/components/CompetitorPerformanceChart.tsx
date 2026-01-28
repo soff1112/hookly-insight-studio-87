@@ -137,20 +137,21 @@ export const CompetitorPerformanceChart = () => {
         </ResponsiveContainer>
 
         <ChartCaption
-          caption="Your views are trending upward (+37.8% over period) but remain 25.8% below competitor average. The gap is narrowing, indicating positive momentum."
-          dataSource="Aggregated from TikTok, Instagram, YouTube APIs"
+          caption="Your views are trending upward (+37.8% over period) but remain 25.8% below competitor average. The gap is narrowing—continue current strategy."
+          dataSource="TikTok, Instagram, YouTube APIs"
           methodology="7-day rolling average, normalized by follower count"
+          confidence="Based on 127 posts"
           onShowData={() => console.log("Show raw data")}
         />
 
         <InsightBlock
           type="insight"
-          content="You're 3 spots from top rank—boost views by 15% via competitor-style hooks. Your growth is +2.8% vs top competitor's +5.2%, a 2.4 percentage point gap."
+          content="You're 3 spots from top rank. Boost views by 15% via competitor-style hooks to close the gap. Your growth rate (+2.8%) vs top competitor (+5.2%) shows a 2.4pp difference."
           impact="+12-15% views"
           dataReference="Competitor ranking by avg views"
           sampleSize="127 videos from 5 accounts"
           timeWindow="Last 7 days"
-          actionLabel="View competitor hooks"
+          actionLabel="Find winning video patterns"
           onAction={() => console.log("View hooks")}
           onShowData={() => console.log("Show data")}
         />
