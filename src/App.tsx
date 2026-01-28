@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { StrategyProvider } from "@/contexts/StrategyContext";
-import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import Index from "./pages/Index";
 import AIInsights from "./pages/AIInsights";
 import CompetitorAnalysis from "./pages/CompetitorAnalysis";
@@ -21,31 +20,29 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <WorkspaceProvider>
-      <ProjectProvider>
-        <StrategyProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/competitor-analysis" element={<CompetitorAnalysis />} />
-                <Route path="/video-analysis" element={<VideoAnalysis />} />
-                <Route path="/in-work" element={<InWork />} />
-                <Route path="/ai-insights" element={<AIInsights />} />
-                <Route path="/marketing-strategy" element={<MarketingStrategy />} />
-                <Route path="/my-accounts" element={<MyAccounts />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </StrategyProvider>
-      </ProjectProvider>
-    </WorkspaceProvider>
+    <ProjectProvider>
+      <StrategyProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/competitor-analysis" element={<CompetitorAnalysis />} />
+              <Route path="/video-analysis" element={<VideoAnalysis />} />
+              <Route path="/in-work" element={<InWork />} />
+              <Route path="/ai-insights" element={<AIInsights />} />
+              <Route path="/marketing-strategy" element={<MarketingStrategy />} />
+              <Route path="/my-accounts" element={<MyAccounts />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </StrategyProvider>
+    </ProjectProvider>
   </QueryClientProvider>
 );
 
