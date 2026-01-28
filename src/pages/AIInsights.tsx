@@ -4,10 +4,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { CompetitorPerformanceChart } from "@/components/CompetitorPerformanceChart";
 import { EngagementByPlatformChart } from "@/components/EngagementByPlatformChart";
 import { PostingRhythmTable } from "@/components/PostingRhythmTable";
+import { BloggerStatisticsChart } from "@/components/BloggerStatisticsChart";
 import { AIInsightCard } from "@/components/AIInsightCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Search, 
   Sparkles, 
@@ -44,6 +46,7 @@ const projectAnalytics = [
 const AIInsights = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [timePeriod, setTimePeriod] = useState("7D");
+  const [activeTab, setActiveTab] = useState("analytics");
 
   const timePeriods = ["1D", "2D", "3D", "7D", "All"];
 
@@ -108,99 +111,119 @@ const AIInsights = () => {
             </div>
           </div>
 
-          {/* Two-Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Left Column - Analytics (60%) */}
-            <div className="lg:col-span-3 space-y-6">
-              <CompetitorPerformanceChart />
-              <EngagementByPlatformChart />
-              <PostingRhythmTable />
+          {/* Tabs for different views */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+              <TabsTrigger value="analytics" className="gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger value="bloggers" className="gap-2">
+                <Users className="w-4 h-4" />
+                Blogger Stats
+              </TabsTrigger>
+            </TabsList>
 
-              {/* Project-Level Analytics Card */}
-              <div className="p-6 rounded-lg border border-border bg-card shadow-card space-y-4">
-                <div className="flex items-center gap-3">
-                  <Layers className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-foreground">Project-Level Analytics</h3>
-                  <Badge variant="outline" className="text-xs">Cross-Niche Comparison</Badge>
-                </div>
-                
-                <p className="text-sm text-muted-foreground">
-                  Aggregated performance across all projects • Normalized by content volume
-                </p>
+            {/* Blogger Statistics Tab */}
+            <TabsContent value="bloggers" className="space-y-6">
+              <BloggerStatisticsChart />
+            </TabsContent>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                    <div className="text-xs text-muted-foreground">Total Views</div>
-                    <div className="text-lg font-semibold text-foreground">{(totalViews / 1000).toFixed(0)}K</div>
-                    <div className="text-xs text-accent">+12.4% vs last period</div>
+            {/* Analytics Tab */}
+            <TabsContent value="analytics">
+              {/* Two-Column Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                {/* Left Column - Analytics (60%) */}
+                <div className="lg:col-span-3 space-y-6">
+                  <CompetitorPerformanceChart />
+                  <EngagementByPlatformChart />
+                  <PostingRhythmTable />
+
+                  {/* Project-Level Analytics Card */}
+                  <div className="p-6 rounded-lg border border-border bg-card shadow-card space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Layers className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg font-semibold text-foreground">Project-Level Analytics</h3>
+                      <Badge variant="outline" className="text-xs">Cross-Niche Comparison</Badge>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground">
+                      Aggregated performance across all projects • Normalized by content volume
+                    </p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+                        <div className="text-xs text-muted-foreground">Total Views</div>
+                        <div className="text-lg font-semibold text-foreground">{(totalViews / 1000).toFixed(0)}K</div>
+                        <div className="text-xs text-accent">+12.4% vs last period</div>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+                        <div className="text-xs text-muted-foreground">Avg ER Across Projects</div>
+                        <div className="text-lg font-semibold text-foreground">{avgER}%</div>
+                        <div className="text-xs text-muted-foreground">Industry avg: 4.2%</div>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+                        <div className="text-xs text-muted-foreground">Top Performer</div>
+                        <div className="text-lg font-semibold text-foreground">{topProject.name}</div>
+                        <div className="text-xs text-accent">+{topProject.momentum}% momentum</div>
+                      </div>
+                      <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+                        <div className="text-xs text-muted-foreground">Needs Attention</div>
+                        <div className="text-lg font-semibold text-foreground">{underperformingProject.name}</div>
+                        <div className="text-xs text-destructive">{underperformingProject.momentum}% momentum</div>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border">
+                            <th className="text-left py-2 font-medium text-muted-foreground">Project</th>
+                            <th className="text-right py-2 font-medium text-muted-foreground">Views</th>
+                            <th className="text-right py-2 font-medium text-muted-foreground">ER %</th>
+                            <th className="text-right py-2 font-medium text-muted-foreground">Posts</th>
+                            <th className="text-right py-2 font-medium text-muted-foreground">Momentum</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {projectAnalytics.map((project) => (
+                            <tr key={project.name} className="border-b border-border/50">
+                              <td className="py-2 font-medium text-foreground">{project.name}</td>
+                              <td className="py-2 text-right text-foreground">{(project.views / 1000).toFixed(0)}K</td>
+                              <td className="py-2 text-right text-foreground">{project.er}%</td>
+                              <td className="py-2 text-right text-foreground">{project.posts}</td>
+                              <td className={`py-2 text-right font-medium ${project.momentum >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                                {project.momentum > 0 ? '+' : ''}{project.momentum}%
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
+                      <p className="text-sm font-semibold text-foreground">
+                        💡 Resource Allocation Insight
+                      </p>
+                      <p className="text-sm text-foreground">
+                        <strong>{topProject.name}</strong> shows +{topProject.momentum}% momentum with highest ER ({topProject.er}%). 
+                        Consider reallocating 20% of <strong>{underperformingProject.name}</strong> content effort to capitalize on this outperformance.
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Niche comparison:</strong> Lifestyle niches (Beauty, Fitness) outperform technical niches (Crypto) by ~40% ER on average.
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                    <div className="text-xs text-muted-foreground">Avg ER Across Projects</div>
-                    <div className="text-lg font-semibold text-foreground">{avgER}%</div>
-                    <div className="text-xs text-muted-foreground">Industry avg: 4.2%</div>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                    <div className="text-xs text-muted-foreground">Top Performer</div>
-                    <div className="text-lg font-semibold text-foreground">{topProject.name}</div>
-                    <div className="text-xs text-accent">+{topProject.momentum}% momentum</div>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-                    <div className="text-xs text-muted-foreground">Needs Attention</div>
-                    <div className="text-lg font-semibold text-foreground">{underperformingProject.name}</div>
-                    <div className="text-xs text-destructive">{underperformingProject.momentum}% momentum</div>
-                  </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-2 font-medium text-muted-foreground">Project</th>
-                        <th className="text-right py-2 font-medium text-muted-foreground">Views</th>
-                        <th className="text-right py-2 font-medium text-muted-foreground">ER %</th>
-                        <th className="text-right py-2 font-medium text-muted-foreground">Posts</th>
-                        <th className="text-right py-2 font-medium text-muted-foreground">Momentum</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {projectAnalytics.map((project) => (
-                        <tr key={project.name} className="border-b border-border/50">
-                          <td className="py-2 font-medium text-foreground">{project.name}</td>
-                          <td className="py-2 text-right text-foreground">{(project.views / 1000).toFixed(0)}K</td>
-                          <td className="py-2 text-right text-foreground">{project.er}%</td>
-                          <td className="py-2 text-right text-foreground">{project.posts}</td>
-                          <td className={`py-2 text-right font-medium ${project.momentum >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                            {project.momentum > 0 ? '+' : ''}{project.momentum}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
-                  <p className="text-sm font-semibold text-foreground">
-                    💡 Resource Allocation Insight
-                  </p>
-                  <p className="text-sm text-foreground">
-                    <strong>{topProject.name}</strong> shows +{topProject.momentum}% momentum with highest ER ({topProject.er}%). 
-                    Consider reallocating 20% of <strong>{underperformingProject.name}</strong> content effort to capitalize on this outperformance.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    <strong>Niche comparison:</strong> Lifestyle niches (Beauty, Fitness) outperform technical niches (Crypto) by ~40% ER on average.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column - Insights (40%) */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Insight Cards */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  Key Insights
-                </h3>
+                {/* Right Column - Insights (40%) */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Insight Cards */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-primary" />
+                      Key Insights
+                    </h3>
 
                 <AIInsightCard
                   icon={TrendingUp}
@@ -495,10 +518,12 @@ const AIInsights = () => {
                   <Button variant="outline" className="flex-1 text-xs">
                     📊 API Access →
                   </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
