@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { ProjectAccountSelector } from "@/components/ProjectAccountSelector";
+import { ExecutiveOverview } from "@/components/insights/ExecutiveOverview";
 import { CompetitorPerformanceChart } from "@/components/CompetitorPerformanceChart";
 import { EngagementByPlatformChart } from "@/components/EngagementByPlatformChart";
 import { PostingRhythmTable } from "@/components/PostingRhythmTable";
@@ -12,24 +13,39 @@ import { EngagementHeatmap } from "@/components/EngagementHeatmap";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
   Search, 
   Sparkles, 
   ArrowRight,
   RefreshCw,
-  Brain
+  Brain,
+  ChevronDown
 } from "lucide-react";
 
 const AIInsights = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [timePeriod, setTimePeriod] = useState("7D");
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
 
   const timePeriods = ["1D", "2D", "3D", "7D", "All"];
 
   const handleRegenerate = () => {
     setIsRegenerating(true);
     setTimeout(() => setIsRegenerating(false), 1500);
+  };
+
+  const toggleSection = (section: string) => {
+    setCollapsedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(section)) {
+        newSet.delete(section);
+      } else {
+        newSet.add(section);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -46,7 +62,7 @@ const AIInsights = () => {
                 <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
               </div>
               <p className="text-muted-foreground">
-                Deep competitive intelligence • 5-10 tracked accounts • Personalized strategy generation
+                Deep competitive intelligence • 5 tracked accounts • Personalized strategy generation
               </p>
               <div className="flex items-center gap-3 mt-2">
                 <ProjectAccountSelector />
@@ -93,44 +109,105 @@ const AIInsights = () => {
                 disabled={isRegenerating}
               >
                 <RefreshCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-                Regenerate
+                Regenerate All
               </Button>
             </div>
           </div>
 
-          {/* Section 1: Competitor Performance Overview */}
-          <section>
-            <CompetitorPerformanceChart />
+          {/* LEVEL 1: Executive Overview */}
+          <section id="executive-overview">
+            <ExecutiveOverview />
           </section>
 
-          {/* Section 2: Engagement Trends by Platform */}
-          <section>
-            <EngagementByPlatformChart />
+          <Separator className="my-8" />
+
+          {/* LEVEL 2: Competitive Benchmarking */}
+          <section id="competitive-benchmarking" className="space-y-6">
+            <div 
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => toggleSection('benchmarking')}
+            >
+              <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 text-[10px]">
+                LEVEL 2
+              </Badge>
+              <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                Competitive Benchmarking
+              </h2>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${
+                collapsedSections.has('benchmarking') ? '-rotate-90' : ''
+              }`} />
+              <span className="text-xs text-muted-foreground ml-auto">
+                Why is this happening compared to competitors?
+              </span>
+            </div>
+
+            {!collapsedSections.has('benchmarking') && (
+              <div className="space-y-6">
+                <CompetitorPerformanceChart />
+                <EngagementByPlatformChart />
+              </div>
+            )}
           </section>
 
-          {/* Section 3: Posting Rhythm & Virality */}
-          <section>
-            <PostingRhythmTable />
+          <Separator className="my-8" />
+
+          {/* LEVEL 3: Actionable Strategy Insights */}
+          <section id="strategy-insights" className="space-y-6">
+            <div 
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => toggleSection('strategy')}
+            >
+              <Badge variant="secondary" className="bg-accent/10 text-accent text-[10px]">
+                LEVEL 3
+              </Badge>
+              <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                Actionable Strategy
+              </h2>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${
+                collapsedSections.has('strategy') ? '-rotate-90' : ''
+              }`} />
+              <span className="text-xs text-muted-foreground ml-auto">
+                What should I do next?
+              </span>
+            </div>
+
+            {!collapsedSections.has('strategy') && (
+              <div className="space-y-6">
+                <PostingRhythmTable />
+                <KeyInsightsGrid />
+              </div>
+            )}
           </section>
 
-          {/* Section 4: Key Insights Grid */}
-          <section>
-            <KeyInsightsGrid />
-          </section>
+          <Separator className="my-8" />
 
-          {/* Section 5: Blogger Statistics */}
-          <section>
-            <BloggerStatisticsChart />
-          </section>
+          {/* LEVEL 4: Deep Dive Analytics */}
+          <section id="deep-dive" className="space-y-6">
+            <div 
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => toggleSection('deepdive')}
+            >
+              <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 text-[10px]">
+                LEVEL 4
+              </Badge>
+              <h2 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                Deep Dive Analytics
+              </h2>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${
+                collapsedSections.has('deepdive') ? '-rotate-90' : ''
+              }`} />
+              <span className="text-xs text-muted-foreground ml-auto">
+                Where exactly are the issues or opportunities?
+              </span>
+            </div>
 
-          {/* Section 6: Video Statistics */}
-          <section>
-            <VideoStatisticsTable />
-          </section>
-
-          {/* Section 7: Engagement Heatmap */}
-          <section>
-            <EngagementHeatmap />
+            {!collapsedSections.has('deepdive') && (
+              <div className="space-y-6">
+                <BloggerStatisticsChart />
+                <VideoStatisticsTable />
+                <EngagementHeatmap />
+              </div>
+            )}
           </section>
 
           {/* Strategy CTA - Sticky at bottom */}

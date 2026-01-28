@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { DashboardCard } from "@/components/DashboardCard";
+import { SectionHeader } from "@/components/insights/SectionHeader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Video, Search, Eye, BarChart2, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Video, Search, Eye, BarChart2, ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -13,6 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type VideoStat = {
   id: string;
@@ -26,6 +33,8 @@ type VideoStat = {
   comments: number;
   shares: number;
   engagementRate: number;
+  viralityScore: number;
+  isAnomaly?: boolean;
 };
 
 const mockVideos: VideoStat[] = [
@@ -40,7 +49,8 @@ const mockVideos: VideoStat[] = [
     likes: 8500,
     comments: 432,
     shares: 890,
-    engagementRate: 7.8
+    engagementRate: 7.8,
+    viralityScore: 134
   },
   {
     id: "2",
@@ -53,7 +63,9 @@ const mockVideos: VideoStat[] = [
     likes: 45000,
     comments: 2100,
     shares: 5600,
-    engagementRate: 11.7
+    engagementRate: 11.7,
+    viralityScore: 245,
+    isAnomaly: true
   },
   {
     id: "3",
@@ -66,7 +78,8 @@ const mockVideos: VideoStat[] = [
     likes: 3200,
     comments: 156,
     shares: 234,
-    engagementRate: 4.0
+    engagementRate: 4.0,
+    viralityScore: 78
   },
   {
     id: "4",
@@ -79,7 +92,8 @@ const mockVideos: VideoStat[] = [
     likes: 4100,
     comments: 289,
     shares: 567,
-    engagementRate: 7.4
+    engagementRate: 7.4,
+    viralityScore: 112
   },
   {
     id: "5",
@@ -92,7 +106,9 @@ const mockVideos: VideoStat[] = [
     likes: 19800,
     comments: 876,
     shares: 2340,
-    engagementRate: 9.8
+    engagementRate: 9.8,
+    viralityScore: 189,
+    isAnomaly: true
   },
   {
     id: "6",
@@ -105,7 +121,8 @@ const mockVideos: VideoStat[] = [
     likes: 12400,
     comments: 890,
     shares: 1200,
-    engagementRate: 9.3
+    engagementRate: 9.3,
+    viralityScore: 156
   },
   {
     id: "7",
@@ -118,7 +135,8 @@ const mockVideos: VideoStat[] = [
     likes: 2100,
     comments: 167,
     shares: 234,
-    engagementRate: 5.6
+    engagementRate: 5.6,
+    viralityScore: 67
   },
   {
     id: "8",
@@ -131,7 +149,9 @@ const mockVideos: VideoStat[] = [
     likes: 15600,
     comments: 1230,
     shares: 3400,
-    engagementRate: 11.4
+    engagementRate: 11.4,
+    viralityScore: 201,
+    isAnomaly: true
   },
 ];
 
@@ -142,9 +162,15 @@ const platformIcons: Record<string, { icon: string; color: string }> = {
 };
 
 const getERColor = (er: number): string => {
-  if (er >= 6) return "bg-accent/10 text-accent";
-  if (er >= 4) return "bg-yellow-500/10 text-yellow-600";
+  if (er >= 8) return "bg-accent/10 text-accent";
+  if (er >= 5) return "bg-yellow-500/10 text-yellow-600";
   return "bg-destructive/10 text-destructive";
+};
+
+const getViralityColor = (score: number): string => {
+  if (score >= 150) return "bg-accent/10 text-accent";
+  if (score >= 100) return "bg-primary/10 text-primary";
+  return "bg-muted text-muted-foreground";
 };
 
 export const VideoStatisticsTable = () => {
@@ -180,6 +206,9 @@ export const VideoStatisticsTable = () => {
     currentPage * itemsPerPage
   );
 
+  const anomalyCount = mockVideos.filter(v => v.isAnomaly).length;
+  const avgER = (mockVideos.reduce((sum, v) => sum + v.engagementRate, 0) / mockVideos.length).toFixed(1);
+
   const handleSort = (field: keyof VideoStat) => {
     if (sortField === field) {
       setSortOrder(prev => prev === "asc" ? "desc" : "asc");
@@ -192,16 +221,33 @@ export const VideoStatisticsTable = () => {
   return (
     <DashboardCard>
       <div className="space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <Video className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Video Statistics</h3>
-          </div>
-        </div>
+        <SectionHeader
+          level={4}
+          title="Video Performance Analysis"
+          subtitle="Granular video-level metrics with virality scoring and anomaly detection"
+          timeRange="Last 7 days"
+          dataScope="3 platforms"
+          sampleSize={`${mockVideos.length} videos analyzed`}
+          tooltip="Virality Score = Actual Reach / Expected Reach × 100. Score >100 means content outperformed expectations based on follower count."
+        />
 
-        <p className="text-sm text-muted-foreground">
-          Detailed statistics for each video across all bloggers
-        </p>
+        {/* Quick Stats */}
+        <div className="flex gap-4 text-sm flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Avg ER:</span>
+            <Badge variant="secondary" className="text-xs">
+              {avgER}%
+            </Badge>
+          </div>
+          {anomalyCount > 0 && (
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-3 h-3 text-accent" />
+              <span className="text-xs text-accent">
+                {anomalyCount} high-performers detected
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Filters */}
         <div className="flex items-center gap-4 flex-wrap">
@@ -246,11 +292,11 @@ export const VideoStatisticsTable = () => {
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead className="w-[60px]">Thumb</TableHead>
-                <TableHead className="min-w-[200px]">Title</TableHead>
-                <TableHead className="w-[100px]">Date</TableHead>
-                <TableHead className="w-[80px]">Platform</TableHead>
+                <TableHead className="min-w-[180px]">Title / Creator</TableHead>
+                <TableHead className="w-[90px]">Date</TableHead>
+                <TableHead className="w-[70px]">Platform</TableHead>
                 <TableHead 
-                  className="w-[100px] cursor-pointer hover:bg-muted/70"
+                  className="w-[90px] cursor-pointer hover:bg-muted/70"
                   onClick={() => handleSort("views")}
                 >
                   <div className="flex items-center gap-1">
@@ -259,18 +305,7 @@ export const VideoStatisticsTable = () => {
                   </div>
                 </TableHead>
                 <TableHead 
-                  className="w-[80px] cursor-pointer hover:bg-muted/70"
-                  onClick={() => handleSort("likes")}
-                >
-                  <div className="flex items-center gap-1">
-                    Likes
-                    <ArrowUpDown className="w-3 h-3" />
-                  </div>
-                </TableHead>
-                <TableHead className="w-[80px]">Comments</TableHead>
-                <TableHead className="w-[80px]">Shares</TableHead>
-                <TableHead 
-                  className="w-[80px] cursor-pointer hover:bg-muted/70"
+                  className="w-[70px] cursor-pointer hover:bg-muted/70"
                   onClick={() => handleSort("engagementRate")}
                 >
                   <div className="flex items-center gap-1">
@@ -278,52 +313,94 @@ export const VideoStatisticsTable = () => {
                     <ArrowUpDown className="w-3 h-3" />
                   </div>
                 </TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead 
+                  className="w-[80px] cursor-pointer hover:bg-muted/70"
+                  onClick={() => handleSort("viralityScore")}
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-1">
+                          Virality
+                          <ArrowUpDown className="w-3 h-3" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Actual reach vs expected reach</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
+                <TableHead className="w-[80px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedVideos.map((video) => (
-                <TableRow key={video.id} className="hover:bg-muted/30">
+                <TableRow 
+                  key={video.id} 
+                  className={`hover:bg-muted/30 ${video.isAnomaly ? 'bg-accent/5 border-l-2 border-l-accent' : ''}`}
+                >
                   <TableCell>
-                    <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden">
+                    <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center overflow-hidden relative">
                       <img 
                         src={video.thumbnail} 
                         alt={video.title}
                         className="w-full h-full object-cover"
                       />
+                      {video.isAnomaly && (
+                        <div className="absolute -top-1 -right-1">
+                          <TrendingUp className="w-3 h-3 text-accent" />
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="space-y-1">
-                      <div className="font-medium text-foreground line-clamp-1">{video.title}</div>
+                    <div className="space-y-0.5">
+                      <div className="font-medium text-foreground line-clamp-1 text-sm">{video.title}</div>
                       <div className="text-xs text-muted-foreground">{video.blogger}</div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-xs text-muted-foreground">
                     {new Date(video.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={platformIcons[video.platform].color}>
+                    <Badge variant="secondary" className={`${platformIcons[video.platform].color} text-xs`}>
                       {platformIcons[video.platform].icon}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-medium">{video.views.toLocaleString()}</TableCell>
-                  <TableCell>{video.likes.toLocaleString()}</TableCell>
-                  <TableCell>{video.comments.toLocaleString()}</TableCell>
-                  <TableCell>{video.shares.toLocaleString()}</TableCell>
+                  <TableCell className="font-medium text-sm font-mono">{video.views.toLocaleString()}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={getERColor(video.engagementRate)}>
+                    <Badge variant="secondary" className={`${getERColor(video.engagementRate)} text-xs`}>
                       {video.engagementRate}%
                     </Badge>
                   </TableCell>
                   <TableCell>
+                    <Badge variant="secondary" className={`${getViralityColor(video.viralityScore)} text-xs`}>
+                      {video.viralityScore}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <BarChart2 className="w-4 h-4" />
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>View video</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <BarChart2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Analyze performance</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -332,26 +409,29 @@ export const VideoStatisticsTable = () => {
           </Table>
         </div>
 
-        {/* Pagination */}
+        {/* Pagination & Footer */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredVideos.length)} of {filteredVideos.length} videos
+          <p className="text-xs text-muted-foreground">
+            Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredVideos.length)} of {filteredVideos.length} videos
+            {minER[0] > 0 && ` • Filtered: ER ≥ ${minER[0]}%`}
           </p>
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
               size="sm"
+              className="h-7"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm font-medium px-2">
-              Page {currentPage} of {totalPages}
+            <span className="text-xs font-medium px-2">
+              {currentPage} / {totalPages}
             </span>
             <Button 
               variant="outline" 
               size="sm"
+              className="h-7"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(prev => prev + 1)}
             >
