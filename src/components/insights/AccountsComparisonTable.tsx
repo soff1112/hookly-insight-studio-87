@@ -5,9 +5,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users, ArrowUpDown, TrendingUp, ChevronUp, ChevronDown } from "lucide-react";
-import { useInsightsFilters } from "@/contexts/InsightsFilterContext";
+import { useInsightsFilters, PrimaryMetric } from "@/contexts/InsightsFilterContext";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { subDays, format, eachDayOfInterval } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface AccountData {
   id: string;
@@ -17,6 +18,8 @@ interface AccountData {
   views: number;
   avgViewsPerPost: number;
   engagementRate: number;
+  likeRate: number;
+  commentRate: number;
   likes: number;
   comments: number;
   shares: number;
@@ -31,31 +34,21 @@ const formatValue = (value: number) => {
 };
 
 export const AccountsComparisonTable = () => {
-  const { filters, availableAccounts } = useInsightsFilters();
+  const { filters, availableAccounts, getDateRange, refreshKey } = useInsightsFilters();
   const [sortKey, setSortKey] = useState<SortKey>("views");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [selectedAccount, setSelectedAccount] = useState<AccountData | null>(null);
-
-  const getDefaultSortKey = (): SortKey => {
-    switch (filters.primaryMetric) {
-      case "views": return "views";
-      case "likes": return "likes";
-      case "comments": return "comments";
-      case "shares": return "shares";
-      case "engagementRate": return "engagementRate";
-      default: return "views";
-    }
-  };
 
   const accountData: AccountData[] = useMemo(() => {
     const selectedAccounts = availableAccounts.filter(a => filters.accounts.includes(a.id));
     
     return selectedAccounts.map((account) => {
-      const posts = Math.floor(Math.random() * 30) + 10;
-      const views = Math.floor(Math.random() * 2000000) + 200000;
-      const likes = Math.floor(views * (Math.random() * 0.08 + 0.02));
-      const comments = Math.floor(likes * (Math.random() * 0.15 + 0.05));
-      const shares = Math.floor(likes * (Math.random() * 0.25 + 0.08));
+      const seed = account.id.charCodeAt(0) + refreshKey;
+      const posts = (seed % 30) + 10;
+      const views = (seed % 2000000) + 200000;
+      const likes = Math.floor(views * ((seed % 8) / 100 + 0.02));
+      const comments = Math.floor(likes * ((seed % 15) / 100 + 0.05));
+      const shares = Math.floor(likes * ((seed % 25) / 100 + 0.08));
       
       return {
         id: account.id,
@@ -65,12 +58,22 @@ export const AccountsComparisonTable = () => {
         views,
         avgViewsPerPost: Math.floor(views / posts),
         engagementRate: parseFloat(((likes + comments + shares) / views * 100).toFixed(2)),
+        likeRate: parseFloat((likes / views * 100).toFixed(2)),
+        commentRate: parseFloat((comments / views * 100).toFixed(2)),
         likes,
         comments,
         shares,
       };
     });
-  }, [filters.accounts, availableAccounts]);
+  }, [filters.accounts, availableAccounts, refreshKey]);
+
+  // Calculate averages for comparison
+  const avgER = useMemo(() => {
+    if (accountData.length === 0) return 0;
+    const totalViews = accountData.reduce((sum, a) => sum + a.views, 0);
+    const weightedER = accountData.reduce((sum, a) => sum + a.engagementRate * a.views, 0);
+    return totalViews > 0 ? weightedER / totalViews : 0;
+  }, [accountData]);
 
   const sortedData = useMemo(() => {
     return [...accountData].sort((a, b) => {
@@ -100,21 +103,21 @@ export const AccountsComparisonTable = () => {
 
   const miniChartData = useMemo(() => {
     if (!selectedAccount) return [];
-    const now = new Date();
-    const dates = eachDayOfInterval({ start: subDays(now, 7), end: now });
+    const { from, to } = getDateRange();
+    const dates = eachDayOfInterval({ start: from, end: to }).slice(-14); // Last 14 days max
     
-    return dates.map((date) => ({
+    return dates.map((date, i) => ({
       date: format(date, "MMM d"),
-      value: Math.floor(Math.random() * 50000) + 10000,
+      value: Math.floor((selectedAccount.views / dates.length) * (0.8 + Math.random() * 0.4)),
     }));
-  }, [selectedAccount]);
+  }, [selectedAccount, getDateRange]);
 
   const topPosts = useMemo(() => {
     if (!selectedAccount) return [];
     return Array.from({ length: 10 }, (_, i) => ({
       id: i,
       title: `Top performing video #${i + 1} about trending topic`,
-      views: Math.floor(Math.random() * 200000) + 50000,
+      views: Math.floor((selectedAccount.views / 10) * (1.5 - i * 0.1)),
       date: subDays(new Date(), Math.floor(Math.random() * 7)),
     })).sort((a, b) => b.views - a.views);
   }, [selectedAccount]);
@@ -130,7 +133,7 @@ export const AccountsComparisonTable = () => {
             <div>
               <CardTitle className="text-lg">Accounts Comparison</CardTitle>
               <CardDescription>
-                Compare your performance against competitors • Click a row for details
+                Compare all connected accounts • Click column headers to sort • Click rows for drill-down
               </CardDescription>
             </div>
           </div>
@@ -196,7 +199,10 @@ export const AccountsComparisonTable = () => {
                   sortedData.map((account) => (
                     <TableRow 
                       key={account.id}
-                      className={`cursor-pointer hover:bg-muted/50 ${account.isUser ? "bg-primary/5" : ""}`}
+                      className={cn(
+                        "cursor-pointer hover:bg-muted/50",
+                        account.isUser && "bg-primary/5"
+                      )}
                       onClick={() => setSelectedAccount(account)}
                     >
                       <TableCell>
@@ -211,7 +217,9 @@ export const AccountsComparisonTable = () => {
                       <TableCell>{formatValue(account.views)}</TableCell>
                       <TableCell>{formatValue(account.avgViewsPerPost)}</TableCell>
                       <TableCell>
-                        <span className={account.engagementRate > 5 ? "text-green-600" : ""}>
+                        <span className={cn(
+                          account.engagementRate > avgER ? "text-green-600" : "text-red-500"
+                        )}>
                           {account.engagementRate}%
                         </span>
                       </TableCell>
@@ -235,7 +243,7 @@ export const AccountsComparisonTable = () => {
               {selectedAccount?.isUser && <Badge variant="secondary">You</Badge>}
             </SheetTitle>
             <SheetDescription>
-              Account performance breakdown
+              Account performance drill-down
             </SheetDescription>
           </SheetHeader>
 
@@ -283,7 +291,7 @@ export const AccountsComparisonTable = () => {
               </div>
 
               <div>
-                <h4 className="text-sm font-medium mb-3">Top Posts</h4>
+                <h4 className="text-sm font-medium mb-3">Top 10 Posts by Views</h4>
                 <ScrollArea className="h-[200px]">
                   <div className="space-y-2">
                     {topPosts.map((post, i) => (
@@ -307,7 +315,7 @@ export const AccountsComparisonTable = () => {
 
               <div>
                 <h4 className="text-sm font-medium mb-3">Platform Split</h4>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Badge variant="outline">TikTok: 60%</Badge>
                   <Badge variant="outline">Instagram: 30%</Badge>
                   <Badge variant="outline">YouTube: 10%</Badge>

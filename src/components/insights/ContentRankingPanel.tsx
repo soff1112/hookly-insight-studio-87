@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { BarChart3, Instagram, Youtube, ExternalLink } from "lucide-react";
-import { useInsightsFilters } from "@/contexts/InsightsFilterContext";
+import { useInsightsFilters, PrimaryMetric } from "@/contexts/InsightsFilterContext";
 import { format, subDays } from "date-fns";
 
 interface ContentItem {
@@ -18,6 +18,8 @@ interface ContentItem {
   comments: number;
   shares: number;
   engagementRate: number;
+  likeRate: number;
+  commentRate: number;
 }
 
 const PlatformIcon = ({ platform }: { platform: string }) => {
@@ -39,69 +41,64 @@ const formatValue = (value: number) => {
   return value.toLocaleString();
 };
 
+const METRIC_LABELS: Record<PrimaryMetric, string> = {
+  views: "Views",
+  likes: "Likes",
+  comments: "Comments",
+  shares: "Shares",
+  engagementRate: "ER %",
+  likeRate: "Like Rate %",
+  commentRate: "Comment Rate %",
+  avgViewsPerPost: "Avg Views/Post",
+};
+
 export const ContentRankingPanel = () => {
-  const { filters, availableAccounts } = useInsightsFilters();
+  const { filters, availableAccounts, getDateRange, refreshKey } = useInsightsFilters();
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
 
   const mockContent: ContentItem[] = useMemo(() => {
     const items: ContentItem[] = [];
     const selectedAccounts = availableAccounts.filter(a => filters.accounts.includes(a.id));
+    const { from, to } = getDateRange();
+    const dayRange = Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
     
     selectedAccounts.forEach((account) => {
       if (!filters.platforms.includes(account.platform)) return;
       
-      const postCount = Math.floor(Math.random() * 10) + 5;
+      // More posts for longer time ranges
+      const postCount = Math.min(Math.floor(dayRange * 2), 30);
       for (let i = 0; i < postCount; i++) {
-        const views = Math.floor(Math.random() * 500000) + 10000;
-        const likes = Math.floor(views * (Math.random() * 0.1 + 0.02));
-        const comments = Math.floor(likes * (Math.random() * 0.15 + 0.05));
-        const shares = Math.floor(likes * (Math.random() * 0.3 + 0.1));
+        const seed = account.id.charCodeAt(0) + i + refreshKey;
+        const views = (seed % 500000) + 10000;
+        const likes = Math.floor(views * ((seed % 10) / 100 + 0.02));
+        const comments = Math.floor(likes * ((seed % 15) / 100 + 0.05));
+        const shares = Math.floor(likes * ((seed % 30) / 100 + 0.1));
         
         items.push({
           id: `${account.id}-${i}`,
           title: `${account.isUser ? "Your" : account.handle} video about trending topic #${i + 1} - Hook strategy test`,
           platform: account.platform,
-          publishDate: subDays(new Date(), Math.floor(Math.random() * 7)),
+          publishDate: subDays(new Date(), Math.floor(seed % dayRange)),
           account: account.handle,
           views,
           likes,
           comments,
           shares,
           engagementRate: parseFloat(((likes + comments + shares) / views * 100).toFixed(2)),
+          likeRate: parseFloat((likes / views * 100).toFixed(2)),
+          commentRate: parseFloat((comments / views * 100).toFixed(2)),
         });
       }
     });
 
-    // Sort by primary metric
-    return items.sort((a, b) => {
-      const getValue = (item: ContentItem) => {
-        switch (filters.primaryMetric) {
-          case "views": return item.views;
-          case "likes": return item.likes;
-          case "comments": return item.comments;
-          case "shares": return item.shares;
-          case "engagementRate": return item.engagementRate;
-          default: return item.views;
-        }
-      };
-      return getValue(b) - getValue(a);
-    });
-  }, [filters, availableAccounts]);
+    // Sort by engagement rate (Grafana-style ranking by ER)
+    return items.sort((a, b) => b.engagementRate - a.engagementRate);
+  }, [filters, availableAccounts, getDateRange, refreshKey]);
 
-  const maxValue = useMemo(() => {
+  const maxER = useMemo(() => {
     if (mockContent.length === 0) return 1;
-    const getValue = (item: ContentItem) => {
-      switch (filters.primaryMetric) {
-        case "views": return item.views;
-        case "likes": return item.likes;
-        case "comments": return item.comments;
-        case "shares": return item.shares;
-        case "engagementRate": return item.engagementRate;
-        default: return item.views;
-      }
-    };
-    return Math.max(...mockContent.map(getValue));
-  }, [mockContent, filters.primaryMetric]);
+    return Math.max(...mockContent.map(item => item.engagementRate));
+  }, [mockContent]);
 
   const getMetricValue = (item: ContentItem) => {
     switch (filters.primaryMetric) {
@@ -110,25 +107,22 @@ export const ContentRankingPanel = () => {
       case "comments": return item.comments;
       case "shares": return item.shares;
       case "engagementRate": return item.engagementRate;
+      case "likeRate": return item.likeRate;
+      case "commentRate": return item.commentRate;
+      case "avgViewsPerPost": return item.views;
       default: return item.views;
     }
   };
 
   const formatMetricValue = (item: ContentItem) => {
     const value = getMetricValue(item);
-    if (filters.primaryMetric === "engagementRate") {
+    if (["engagementRate", "likeRate", "commentRate"].includes(filters.primaryMetric)) {
       return `${value}%`;
     }
     return formatValue(value);
   };
 
-  const metricLabel = {
-    views: "Views",
-    likes: "Likes",
-    comments: "Comments",
-    shares: "Shares",
-    engagementRate: "ER %",
-  }[filters.primaryMetric];
+  const metricLabel = METRIC_LABELS[filters.primaryMetric];
 
   return (
     <>
@@ -139,9 +133,9 @@ export const ContentRankingPanel = () => {
               <BarChart3 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg">Content Ranking</CardTitle>
+              <CardTitle className="text-lg">Engagement Rating by Post</CardTitle>
               <CardDescription>
-                Posts ranked by {metricLabel} • Click for details
+                Posts ranked by Engagement Rate % • Sorted DESC • Top 30
               </CardDescription>
             </div>
           </div>
@@ -154,9 +148,8 @@ export const ContentRankingPanel = () => {
                   No content found for selected filters.
                 </div>
               ) : (
-                mockContent.map((item, index) => {
-                  const value = getMetricValue(item);
-                  const barWidth = (value / maxValue) * 100;
+                mockContent.slice(0, 30).map((item, index) => {
+                  const barWidth = (item.engagementRate / maxER) * 100;
                   
                   return (
                     <div
@@ -186,7 +179,7 @@ export const ContentRankingPanel = () => {
                           />
                         </div>
                         <span className="absolute inset-0 flex items-center justify-end pr-2 text-xs font-medium">
-                          {formatMetricValue(item)}
+                          {item.engagementRate}%
                         </span>
                       </div>
                     </div>
@@ -206,7 +199,7 @@ export const ContentRankingPanel = () => {
               Content Details
             </SheetTitle>
             <SheetDescription>
-              Full metrics and information
+              Full metrics breakdown
             </SheetDescription>
           </SheetHeader>
           
@@ -248,9 +241,19 @@ export const ContentRankingPanel = () => {
                     <p className="text-lg font-semibold">{formatValue(selectedContent.shares)}</p>
                   </div>
                 </div>
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <p className="text-xs text-muted-foreground">Engagement Rate</p>
-                  <p className="text-lg font-semibold text-primary">{selectedContent.engagementRate}%</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 rounded-lg bg-primary/10">
+                    <p className="text-xs text-muted-foreground">ER %</p>
+                    <p className="text-lg font-semibold text-primary">{selectedContent.engagementRate}%</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted">
+                    <p className="text-xs text-muted-foreground">Like Rate</p>
+                    <p className="text-lg font-semibold">{selectedContent.likeRate}%</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted">
+                    <p className="text-xs text-muted-foreground">Comment Rate</p>
+                    <p className="text-lg font-semibold">{selectedContent.commentRate}%</p>
+                  </div>
                 </div>
               </div>
 
