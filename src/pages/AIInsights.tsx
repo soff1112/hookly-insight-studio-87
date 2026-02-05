@@ -30,7 +30,7 @@ const AIInsightsContent = () => {
           </div>
         </div>
 
-        {/* Global Control Bar */}
+        {/* Global Control Bar - Sticky */}
         <InsightsControlBar />
 
         {/* Panel A: Metric Over Time */}
@@ -45,7 +45,7 @@ const AIInsightsContent = () => {
         {/* Panel D: Accounts Comparison Table */}
         <AccountsComparisonTable />
 
-        {/* Insights & Actions Section */}
+        {/* AI Analysis & Actions Section */}
         <InsightsActionsSection />
       </div>
     </main>

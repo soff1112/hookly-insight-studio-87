@@ -11,8 +11,8 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
-import { useInsightsFilters } from "@/contexts/InsightsFilterContext";
-import { format, subDays, subHours, eachDayOfInterval, eachHourOfInterval } from "date-fns";
+import { useInsightsFilters, PrimaryMetric } from "@/contexts/InsightsFilterContext";
+import { format, eachDayOfInterval, eachHourOfInterval, eachWeekOfInterval, differenceInHours } from "date-fns";
 
 const ACCOUNT_COLORS = [
   "hsl(252, 76%, 66%)",
@@ -33,27 +33,39 @@ const formatTooltipValue = (value: number) => {
   return value.toLocaleString();
 };
 
+const isRateMetric = (metric: PrimaryMetric) => {
+  return ["engagementRate", "likeRate", "commentRate"].includes(metric);
+};
+
+const METRIC_LABELS: Record<PrimaryMetric, string> = {
+  views: "Views",
+  likes: "Likes",
+  comments: "Comments",
+  shares: "Shares/Reposts",
+  engagementRate: "Engagement Rate %",
+  likeRate: "Like Rate %",
+  commentRate: "Comment Rate %",
+  avgViewsPerPost: "Avg Views/Post",
+};
+
 export const MetricOverTimeChart = () => {
-  const { filters, availableAccounts, timezone } = useInsightsFilters();
+  const { filters, availableAccounts, getDateRange, getBucketType, refreshKey } = useInsightsFilters();
 
   const chartData = useMemo(() => {
-    const now = new Date();
+    const { from, to } = getDateRange();
+    const bucketType = getBucketType();
     let dates: Date[] = [];
     let dateFormat = "MMM d";
 
-    if (filters.timeRange === "24h") {
-      dates = eachHourOfInterval({ start: subHours(now, 24), end: now });
+    if (bucketType === "hourly") {
+      dates = eachHourOfInterval({ start: from, end: to });
       dateFormat = "HH:mm";
-    } else if (filters.timeRange === "7d") {
-      dates = eachDayOfInterval({ start: subDays(now, 7), end: now });
-    } else if (filters.timeRange === "30d") {
-      dates = eachDayOfInterval({ start: subDays(now, 30), end: now });
-    } else if (filters.timeRange === "90d") {
-      dates = eachDayOfInterval({ start: subDays(now, 90), end: now });
-    } else if (filters.timeRange === "custom" && filters.customDateRange) {
-      dates = eachDayOfInterval({ start: filters.customDateRange.from, end: filters.customDateRange.to });
+    } else if (bucketType === "weekly") {
+      dates = eachWeekOfInterval({ start: from, end: to });
+      dateFormat = "MMM d";
     } else {
-      dates = eachDayOfInterval({ start: subDays(now, 7), end: now });
+      dates = eachDayOfInterval({ start: from, end: to });
+      dateFormat = "MMM d";
     }
 
     const selectedAccounts = availableAccounts.filter(a => filters.accounts.includes(a.id));
@@ -62,12 +74,14 @@ export const MetricOverTimeChart = () => {
       const dataPoint: Record<string, any> = {
         date: format(date, dateFormat),
         fullDate: format(date, "PPP p"),
+        timestamp: date.getTime(),
       };
 
       selectedAccounts.forEach((account) => {
-        // Generate mock data based on metric type
-        const baseValue = account.isUser ? 50000 : Math.random() * 100000 + 20000;
-        const variance = Math.random() * 0.4 + 0.8;
+        // Generate deterministic mock data based on account and date
+        const seed = account.id.charCodeAt(0) + date.getTime() + refreshKey;
+        const baseValue = account.isUser ? 50000 : (seed % 100) * 1000 + 20000;
+        const variance = ((seed % 40) + 80) / 100;
         
         let value: number;
         switch (filters.primaryMetric) {
@@ -84,7 +98,16 @@ export const MetricOverTimeChart = () => {
             value = Math.floor(baseValue * 0.01 * variance);
             break;
           case "engagementRate":
-            value = parseFloat((Math.random() * 8 + 2).toFixed(2));
+            value = parseFloat(((seed % 60) / 10 + 2).toFixed(2));
+            break;
+          case "likeRate":
+            value = parseFloat(((seed % 40) / 10 + 1).toFixed(2));
+            break;
+          case "commentRate":
+            value = parseFloat(((seed % 20) / 10 + 0.5).toFixed(2));
+            break;
+          case "avgViewsPerPost":
+            value = Math.floor((baseValue * variance) / ((seed % 5) + 2));
             break;
           default:
             value = Math.floor(baseValue * variance);
@@ -95,17 +118,11 @@ export const MetricOverTimeChart = () => {
 
       return dataPoint;
     });
-  }, [filters, availableAccounts]);
+  }, [filters, availableAccounts, getDateRange, getBucketType, refreshKey]);
 
   const selectedAccounts = availableAccounts.filter(a => filters.accounts.includes(a.id));
-
-  const metricLabel = {
-    views: "Views",
-    likes: "Likes",
-    comments: "Comments",
-    shares: "Shares/Reposts",
-    engagementRate: "Engagement Rate %",
-  }[filters.primaryMetric];
+  const metricLabel = METRIC_LABELS[filters.primaryMetric];
+  const isRate = isRateMetric(filters.primaryMetric);
 
   if (selectedAccounts.length === 0) {
     return (
@@ -135,7 +152,7 @@ export const MetricOverTimeChart = () => {
           <div>
             <CardTitle className="text-lg">{metricLabel} Over Time</CardTitle>
             <CardDescription>
-              Track performance trends across selected accounts
+              Track performance trends across selected accounts • {isRate ? "Weighted average" : "Sum"} per time bucket
             </CardDescription>
           </div>
         </div>
@@ -170,9 +187,7 @@ export const MetricOverTimeChart = () => {
                 return fullDate || label;
               }}
               formatter={(value: number, name: string) => [
-                filters.primaryMetric === "engagementRate" 
-                  ? `${value}%` 
-                  : formatTooltipValue(value),
+                isRate ? `${value}%` : formatTooltipValue(value),
                 name,
               ]}
             />

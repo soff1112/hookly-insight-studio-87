@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Layers } from "lucide-react";
-import { useInsightsFilters } from "@/contexts/InsightsFilterContext";
+import { useInsightsFilters, PrimaryMetric, getTimeRangeLabel } from "@/contexts/InsightsFilterContext";
 
 const formatValue = (value: number) => {
   if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
@@ -16,13 +16,30 @@ interface PlatformData {
   value: number;
   postCount: number;
   color: string;
+  totalViews: number; // For weighted average calculation
 }
 
+const METRIC_LABELS: Record<PrimaryMetric, string> = {
+  views: "Views",
+  likes: "Likes",
+  comments: "Comments",
+  shares: "Shares",
+  engagementRate: "Avg ER %",
+  likeRate: "Avg Like Rate %",
+  commentRate: "Avg Comment Rate %",
+  avgViewsPerPost: "Avg Views/Post",
+};
+
+const isRateMetric = (metric: PrimaryMetric) => {
+  return ["engagementRate", "likeRate", "commentRate"].includes(metric);
+};
+
 export const PlatformBreakdownPanel = () => {
-  const { filters, availableAccounts } = useInsightsFilters();
+  const { filters, availableAccounts, getDateRange, refreshKey } = useInsightsFilters();
 
   const platformData = useMemo(() => {
     const data: PlatformData[] = [];
+    const { from, to } = getDateRange();
     
     const platforms = [
       { key: "instagram", label: "Instagram", color: "hsl(330, 80%, 60%)" },
@@ -39,28 +56,40 @@ export const PlatformBreakdownPanel = () => {
 
       if (accountsOnPlatform.length === 0) return;
 
-      // Generate mock aggregated data
-      let value: number;
-      const postCount = Math.floor(Math.random() * 50) + 20;
+      // Generate mock aggregated data with proper aggregation logic
+      const seed = platform.key.charCodeAt(0) + refreshKey;
+      const postCount = (seed % 50) + 20;
+      const totalViews = (seed % 2000000) + 500000;
       
+      let value: number;
       switch (filters.primaryMetric) {
         case "views":
-          value = Math.floor(Math.random() * 2000000) + 500000;
+          value = totalViews;
           break;
         case "likes":
-          value = Math.floor(Math.random() * 100000) + 25000;
+          value = Math.floor(totalViews * 0.05);
           break;
         case "comments":
-          value = Math.floor(Math.random() * 10000) + 2000;
+          value = Math.floor(totalViews * 0.005);
           break;
         case "shares":
-          value = Math.floor(Math.random() * 20000) + 5000;
+          value = Math.floor(totalViews * 0.01);
           break;
         case "engagementRate":
-          value = parseFloat((Math.random() * 6 + 2).toFixed(2));
+          // Weighted average by views
+          value = parseFloat(((seed % 60) / 10 + 2).toFixed(2));
+          break;
+        case "likeRate":
+          value = parseFloat(((seed % 40) / 10 + 1).toFixed(2));
+          break;
+        case "commentRate":
+          value = parseFloat(((seed % 20) / 10 + 0.3).toFixed(2));
+          break;
+        case "avgViewsPerPost":
+          value = Math.floor(totalViews / postCount);
           break;
         default:
-          value = Math.floor(Math.random() * 2000000) + 500000;
+          value = totalViews;
       }
 
       data.push({
@@ -69,43 +98,47 @@ export const PlatformBreakdownPanel = () => {
         value,
         postCount,
         color: platform.color,
+        totalViews,
       });
     });
 
     return data;
-  }, [filters, availableAccounts]);
+  }, [filters, availableAccounts, getDateRange, refreshKey]);
 
-  const totalValue = useMemo(() => {
-    return platformData.reduce((sum, p) => sum + p.value, 0);
-  }, [platformData]);
-
-  const totalPosts = useMemo(() => {
-    return platformData.reduce((sum, p) => sum + p.postCount, 0);
-  }, [platformData]);
+  // Calculate totals with proper aggregation
+  const { totalValue, totalPosts, totalViews } = useMemo(() => {
+    const isRate = isRateMetric(filters.primaryMetric);
+    const totalPosts = platformData.reduce((sum, p) => sum + p.postCount, 0);
+    const totalViews = platformData.reduce((sum, p) => sum + p.totalViews, 0);
+    
+    let totalValue: number;
+    if (isRate) {
+      // Weighted average for rates
+      const weightedSum = platformData.reduce((sum, p) => sum + p.value * p.totalViews, 0);
+      totalValue = totalViews > 0 ? weightedSum / totalViews : 0;
+    } else if (filters.primaryMetric === "avgViewsPerPost") {
+      totalValue = totalPosts > 0 ? totalViews / totalPosts : 0;
+    } else {
+      // Sum for counts
+      totalValue = platformData.reduce((sum, p) => sum + p.value, 0);
+    }
+    
+    return { totalValue, totalPosts, totalViews };
+  }, [platformData, filters.primaryMetric]);
 
   const maxValue = useMemo(() => {
     return Math.max(...platformData.map(p => p.value), 1);
   }, [platformData]);
 
-  const metricLabel = {
-    views: "Views",
-    likes: "Likes",
-    comments: "Comments",
-    shares: "Shares",
-    engagementRate: "Avg ER %",
-  }[filters.primaryMetric];
-
-  const timeRangeLabel = {
-    "24h": "Last 24 hours",
-    "7d": "Last 7 days",
-    "30d": "Last 30 days",
-    "90d": "Last 90 days",
-    "custom": "Custom range",
-  }[filters.timeRange];
+  const metricLabel = METRIC_LABELS[filters.primaryMetric];
+  const timeRangeLabel = getTimeRangeLabel(filters.timeRange);
+  const isRate = isRateMetric(filters.primaryMetric);
 
   const formatDisplayValue = (value: number) => {
-    if (filters.primaryMetric === "engagementRate") {
-      return `${value.toFixed(2)}%`;
+    if (isRate || filters.primaryMetric === "avgViewsPerPost") {
+      return filters.primaryMetric === "avgViewsPerPost" 
+        ? formatValue(Math.floor(value))
+        : `${value.toFixed(2)}%`;
     }
     return formatValue(value);
   };
@@ -120,7 +153,7 @@ export const PlatformBreakdownPanel = () => {
           <div>
             <CardTitle className="text-lg">Platform Breakdown</CardTitle>
             <CardDescription>
-              {metricLabel} comparison by platform
+              {metricLabel} by platform • {isRate ? "Weighted avg" : "Sum"} aggregation
             </CardDescription>
           </div>
         </div>
@@ -163,6 +196,7 @@ export const PlatformBreakdownPanel = () => {
                           <p className="font-medium">{platform.label}</p>
                           <p>Total {metricLabel}: {formatDisplayValue(platform.value)}</p>
                           <p>Posts included: {platform.postCount}</p>
+                          <p>Total views: {formatValue(platform.totalViews)}</p>
                           <p className="text-muted-foreground text-xs">{timeRangeLabel}</p>
                         </div>
                       </TooltipContent>
@@ -177,9 +211,7 @@ export const PlatformBreakdownPanel = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-semibold text-primary">Total</span>
                           <span className="text-sm font-bold text-primary">
-                            {filters.primaryMetric === "engagementRate"
-                              ? `${(totalValue / platformData.length).toFixed(2)}%`
-                              : formatValue(totalValue)}
+                            {formatDisplayValue(totalValue)}
                           </span>
                         </div>
                         <div className="h-8 bg-primary/10 rounded-md overflow-hidden">
@@ -193,10 +225,9 @@ export const PlatformBreakdownPanel = () => {
                     <TooltipContent side="right">
                       <div className="text-sm space-y-1">
                         <p className="font-medium">All Platforms</p>
-                        <p>Total {metricLabel}: {filters.primaryMetric === "engagementRate"
-                          ? `${(totalValue / platformData.length).toFixed(2)}%`
-                          : formatValue(totalValue)}</p>
+                        <p>Total {metricLabel}: {formatDisplayValue(totalValue)}</p>
                         <p>Posts included: {totalPosts}</p>
+                        <p>Total views: {formatValue(totalViews)}</p>
                         <p className="text-muted-foreground text-xs">{timeRangeLabel}</p>
                       </div>
                     </TooltipContent>
