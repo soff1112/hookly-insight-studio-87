@@ -2,14 +2,10 @@ import { Sidebar } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { InsightsFilterProvider } from "@/contexts/InsightsFilterContext";
 import { InsightsControlBar } from "@/components/insights/InsightsControlBar";
-import { CompetitorPerformanceOverview } from "@/components/insights/CompetitorPerformanceOverview";
-import { EngagementTrendsByPlatform } from "@/components/insights/EngagementTrendsByPlatform";
-import { PostingRhythmVirality } from "@/components/insights/PostingRhythmVirality";
-import { TopCompetitorAlert } from "@/components/insights/TopCompetitorAlert";
-import { EngagementGapAnalysis } from "@/components/insights/EngagementGapAnalysis";
-import { ViralityTrendsCard } from "@/components/insights/ViralityTrendsCard";
-import { OptimalPostingTimes } from "@/components/insights/OptimalPostingTimes";
-import { QuickWinCard } from "@/components/insights/QuickWinCard";
+import { MetricOverTimeChart } from "@/components/insights/MetricOverTimeChart";
+import { ContentRankingPanel } from "@/components/insights/ContentRankingPanel";
+import { PlatformBreakdownPanel } from "@/components/insights/PlatformBreakdownPanel";
+import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
 import { InsightsActionsSection } from "@/components/insights/InsightsActionsSection";
 
 const AIInsightsContent = () => {
@@ -37,35 +33,17 @@ const AIInsightsContent = () => {
         {/* Global Control Bar */}
         <InsightsControlBar />
 
-        {/* Block 1: Competitor Performance Overview */}
-        <CompetitorPerformanceOverview />
+        {/* Panel A: Metric Over Time */}
+        <MetricOverTimeChart />
 
-        {/* Block 2: Engagement Trends by Platform */}
-        <EngagementTrendsByPlatform />
-
-        {/* Block 3: Posting Rhythm & Virality */}
-        <PostingRhythmVirality />
-
-        {/* Two Column Layout for Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Block 4: Top Competitor Alert */}
-          <TopCompetitorAlert />
-
-          {/* Block 5: Engagement Gap Analysis */}
-          <EngagementGapAnalysis />
+        {/* Two Column Layout: Content Ranking + Platform Breakdown */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <ContentRankingPanel />
+          <PlatformBreakdownPanel />
         </div>
 
-        {/* Three Column Layout for Smaller Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Block 6: Virality Trends */}
-          <ViralityTrendsCard />
-
-          {/* Block 7: Optimal Posting Times */}
-          <OptimalPostingTimes />
-
-          {/* Block 8: Quick Win */}
-          <QuickWinCard />
-        </div>
+        {/* Panel D: Accounts Comparison Table */}
+        <AccountsComparisonTable />
 
         {/* Insights & Actions Section */}
         <InsightsActionsSection />
