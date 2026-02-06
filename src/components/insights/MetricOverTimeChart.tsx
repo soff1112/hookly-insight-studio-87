@@ -34,7 +34,7 @@ const formatTooltipValue = (value: number) => {
 };
 
 export const MetricOverTimeChart = () => {
-  const { filters, availableAccounts } = useInsightsFilters();
+  const { filters, availableAccounts, timezone } = useInsightsFilters();
 
   const chartData = useMemo(() => {
     const now = new Date();

@@ -2,17 +2,16 @@ import { Sidebar } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { InsightsFilterProvider } from "@/contexts/InsightsFilterContext";
 import { InsightsControlBar } from "@/components/insights/InsightsControlBar";
-import { RatingsPanel } from "@/components/insights/RatingsPanel";
-import { MetricChangesPanel } from "@/components/insights/MetricChangesPanel";
-import { EngagementRatingPanel } from "@/components/insights/EngagementRatingPanel";
-import { PlatformStatisticsPanel } from "@/components/insights/PlatformStatisticsPanel";
-import { AccountStatisticsPanel } from "@/components/insights/AccountStatisticsPanel";
-import { VideoStatisticsPanel } from "@/components/insights/VideoStatisticsPanel";
+import { MetricOverTimeChart } from "@/components/insights/MetricOverTimeChart";
+import { ContentRankingPanel } from "@/components/insights/ContentRankingPanel";
+import { PlatformBreakdownPanel } from "@/components/insights/PlatformBreakdownPanel";
+import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
+import { InsightsActionsSection } from "@/components/insights/InsightsActionsSection";
 
 const AIInsightsContent = () => {
   return (
     <main className="flex-1 p-8 overflow-auto">
-      <div className="max-w-[1800px] mx-auto space-y-6">
+      <div className="max-w-[1600px] mx-auto space-y-6">
         {/* Page Header */}
         <div className="space-y-3">
           <div>
@@ -34,23 +33,20 @@ const AIInsightsContent = () => {
         {/* Global Control Bar */}
         <InsightsControlBar />
 
-        {/* Time Series Panels - Full Width */}
-        <div className="grid grid-cols-1 gap-6">
-          <RatingsPanel />
-          <MetricChangesPanel />
-        </div>
+        {/* Panel A: Metric Over Time */}
+        <MetricOverTimeChart />
 
-        {/* Horizontal Bar Panels - Grid Layout */}
+        {/* Two Column Layout: Content Ranking + Platform Breakdown */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <EngagementRatingPanel />
-          <div className="space-y-6">
-            <PlatformStatisticsPanel />
-            <AccountStatisticsPanel />
-          </div>
+          <ContentRankingPanel />
+          <PlatformBreakdownPanel />
         </div>
 
-        {/* Video Statistics - Full Width */}
-        <VideoStatisticsPanel />
+        {/* Panel D: Accounts Comparison Table */}
+        <AccountsComparisonTable />
+
+        {/* Insights & Actions Section */}
+        <InsightsActionsSection />
       </div>
     </main>
   );
