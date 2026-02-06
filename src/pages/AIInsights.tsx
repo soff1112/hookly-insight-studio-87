@@ -9,6 +9,7 @@ import { PlatformStatsChart } from "@/components/insights/PlatformStatsChart";
 import { PlatformMultiMetricChart } from "@/components/insights/PlatformMultiMetricChart";
 import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
 import { InsightsActionsSection } from "@/components/insights/InsightsActionsSection";
+import { Brain, Building2 } from "lucide-react";
 
 const AIInsightsContent = () => {
   return (
@@ -17,18 +18,18 @@ const AIInsightsContent = () => {
         {/* Page Header */}
         <div className="space-y-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
+            <div className="flex items-center gap-2">
+              <Brain className="w-8 h-8 text-primary" />
+              <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
+            </div>
             <p className="text-muted-foreground mt-1">
-              Competitive intelligence → Insights → Actions
+              Deep competitive intelligence
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-muted-foreground">
-              6 accounts connected
-            </Badge>
-            <Badge variant="secondary" className="bg-primary/10 text-primary">
-              Plan: Pro
-            </Badge>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Building2 className="w-4 h-4" />
+            <span className="text-sm">Workspace:</span>
+            <span className="text-sm font-semibold text-foreground">yoga</span>
           </div>
         </div>
 
