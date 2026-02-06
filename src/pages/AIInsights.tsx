@@ -6,6 +6,7 @@ import { RatingsChart } from "@/components/insights/RatingsChart";
 import { MetricChangesChart } from "@/components/insights/MetricChangesChart";
 import { ContentRankingPanel } from "@/components/insights/ContentRankingPanel";
 import { PlatformStatsChart } from "@/components/insights/PlatformStatsChart";
+import { PlatformMultiMetricChart } from "@/components/insights/PlatformMultiMetricChart";
 import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
 import { InsightsActionsSection } from "@/components/insights/InsightsActionsSection";
 
@@ -46,10 +47,7 @@ const AIInsightsContent = () => {
             title="Platform Statistics" 
             description="Performance breakdown by platform"
           />
-          <PlatformStatsChart 
-            title="Engagement Stats" 
-            description="Engagement metrics by platform"
-          />
+          <PlatformMultiMetricChart />
         </div>
 
         {/* Content Ranking */}
