@@ -34,8 +34,8 @@ const AIInsightsContent = () => {
         {/* Global Control Bar */}
         <InsightsControlBar />
 
-        {/* Charts: Ratings + Metric Changes - side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Charts: Ratings + Metric Changes - full width, stacked */}
+        <div className="space-y-6">
           <RatingsChart />
           <MetricChangesChart />
         </div>
