@@ -42,8 +42,8 @@ const AIInsightsContent = () => {
           <MetricChangesChart />
         </div>
 
-        {/* Platform Statistics - Two Charts */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Platform Statistics - Full width, stacked */}
+        <div className="space-y-6">
           <PlatformStatsChart 
             title="Platform Statistics" 
             description="Performance breakdown by platform"
