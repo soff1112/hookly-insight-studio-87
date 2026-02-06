@@ -5,7 +5,7 @@ import { InsightsControlBar } from "@/components/insights/InsightsControlBar";
 import { RatingsChart } from "@/components/insights/RatingsChart";
 import { MetricChangesChart } from "@/components/insights/MetricChangesChart";
 import { ContentRankingPanel } from "@/components/insights/ContentRankingPanel";
-import { PlatformBreakdownPanel } from "@/components/insights/PlatformBreakdownPanel";
+import { PlatformStatsChart } from "@/components/insights/PlatformStatsChart";
 import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
 import { InsightsActionsSection } from "@/components/insights/InsightsActionsSection";
 
@@ -40,11 +40,20 @@ const AIInsightsContent = () => {
           <MetricChangesChart />
         </div>
 
-        {/* Two Column Layout: Content Ranking + Platform Breakdown */}
+        {/* Platform Statistics - Two Charts */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <ContentRankingPanel />
-          <PlatformBreakdownPanel />
+          <PlatformStatsChart 
+            title="Platform Statistics" 
+            description="Performance breakdown by platform"
+          />
+          <PlatformStatsChart 
+            title="Engagement Stats" 
+            description="Engagement metrics by platform"
+          />
         </div>
+
+        {/* Content Ranking */}
+        <ContentRankingPanel />
 
         {/* Panel D: Accounts Comparison Table */}
         <AccountsComparisonTable />
