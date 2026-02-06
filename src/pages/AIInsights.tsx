@@ -2,7 +2,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { Badge } from "@/components/ui/badge";
 import { InsightsFilterProvider } from "@/contexts/InsightsFilterContext";
 import { InsightsControlBar } from "@/components/insights/InsightsControlBar";
-import { MetricOverTimeChart } from "@/components/insights/MetricOverTimeChart";
+import { RatingsChart } from "@/components/insights/RatingsChart";
+import { MetricChangesChart } from "@/components/insights/MetricChangesChart";
 import { ContentRankingPanel } from "@/components/insights/ContentRankingPanel";
 import { PlatformBreakdownPanel } from "@/components/insights/PlatformBreakdownPanel";
 import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
@@ -33,8 +34,11 @@ const AIInsightsContent = () => {
         {/* Global Control Bar */}
         <InsightsControlBar />
 
-        {/* Panel A: Metric Over Time */}
-        <MetricOverTimeChart />
+        {/* Charts: Ratings + Metric Changes */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <RatingsChart />
+          <MetricChangesChart />
+        </div>
 
         {/* Two Column Layout: Content Ranking + Platform Breakdown */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
