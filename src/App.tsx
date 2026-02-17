@@ -6,8 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { StrategyProvider } from "@/contexts/StrategyContext";
 import Index from "./pages/Index";
-import DeepAnalysis from "./pages/AIInsights";
-import AIInsightsActions from "./pages/AIInsightsActions";
+import AIInsights from "./pages/AIInsights";
 import CompetitorAnalysis from "./pages/CompetitorAnalysis";
 import VideoAnalysis from "./pages/VideoAnalysis";
 import InWork from "./pages/InWork";
@@ -32,8 +31,7 @@ const App = () => (
               <Route path="/competitor-analysis" element={<CompetitorAnalysis />} />
               <Route path="/video-analysis" element={<VideoAnalysis />} />
               <Route path="/in-work" element={<InWork />} />
-              <Route path="/deep-analysis" element={<DeepAnalysis />} />
-              <Route path="/ai-insights" element={<AIInsightsActions />} />
+              <Route path="/ai-insights" element={<AIInsights />} />
               <Route path="/marketing-strategy" element={<MarketingStrategy />} />
               <Route path="/my-accounts" element={<MyAccounts />} />
               <Route path="/profile" element={<Profile />} />

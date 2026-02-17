@@ -1,4 +1,4 @@
-import { Home, BarChart3, Video, Wrench, Settings, HelpCircle, Send, Users, Sparkles, Lightbulb, Search } from "lucide-react";
+import { Home, BarChart3, Video, Wrench, Brain, Settings, HelpCircle, Send, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "react-router-dom";
@@ -12,8 +12,7 @@ const menuItems = [
   { icon: BarChart3, label: "Competitor Analysis", href: "/competitor-analysis" },
   { icon: Video, label: "Video Analysis", href: "/video-analysis" },
   { icon: Wrench, label: "In Work", href: "/in-work" },
-  { icon: Search, label: "Deep Analysis", href: "/deep-analysis" },
-  { icon: Lightbulb, label: "AI Insights", href: "/ai-insights" },
+  { icon: Brain, label: "AI Insights", href: "/ai-insights" },
   { icon: Sparkles, label: "Marketing Strategy", href: "/marketing-strategy" },
 ];
 
