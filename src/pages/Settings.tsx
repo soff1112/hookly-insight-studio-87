@@ -15,7 +15,15 @@ import {
   CreditCard, 
   Trash2,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Gift,
+  Copy,
+  Link,
+  DollarSign,
+  Users,
+  Clock,
+  CheckCircle,
+  Wallet
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -531,6 +539,165 @@ const Settings = () => {
                     <button className="hover:text-primary transition-colors">Cancellation Policy</button>
                     <span>•</span>
                     <button className="hover:text-primary transition-colors">Privacy Policy</button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Referral Program */}
+              <Card className="border-border shadow-sm">
+                <CardHeader className="border-b border-primary/20 bg-primary/5">
+                  <CardTitle className="flex items-center gap-2">
+                    <Gift className="h-5 w-5 text-primary" />
+                    Referral Program
+                  </CardTitle>
+                  <CardDescription>
+                    Earn from every paid user you invite.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  {/* Referral Link */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold">Your personal referral link</h3>
+                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                      <Link className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm font-mono text-foreground flex-1 truncate">hookly.ai/ref/sofiia123</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 h-8 w-8"
+                        onClick={() => {
+                          navigator.clipboard.writeText("https://hookly.ai/ref/sofiia123");
+                          toast({ title: "Copied!", description: "Referral link copied to clipboard" });
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button className="flex-1 bg-primary hover:bg-primary/90">
+                        Generate New Link
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          navigator.clipboard.writeText("https://hookly.ai/ref/sofiia123");
+                          toast({ title: "Copied!", description: "Referral link copied to clipboard" });
+                        }}
+                      >
+                        Copy Link
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Share this link. When someone subscribes, you earn commission.
+                    </p>
+                  </div>
+
+                  <div className="h-px bg-border" />
+
+                  {/* Earnings Overview */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold">Earnings Overview</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-4 bg-muted/50 rounded-lg text-center space-y-1">
+                        <DollarSign className="h-5 w-5 text-primary mx-auto" />
+                        <p className="text-lg font-bold text-foreground">$1,240</p>
+                        <p className="text-xs text-muted-foreground">Total earned</p>
+                      </div>
+                      <div className="p-4 bg-muted/50 rounded-lg text-center space-y-1">
+                        <Wallet className="h-5 w-5 text-accent mx-auto" />
+                        <p className="text-lg font-bold text-foreground">$480</p>
+                        <p className="text-xs text-muted-foreground">Available</p>
+                      </div>
+                      <div className="p-4 bg-muted/50 rounded-lg text-center space-y-1">
+                        <Clock className="h-5 w-5 text-muted-foreground mx-auto" />
+                        <p className="text-lg font-bold text-foreground">$760</p>
+                        <p className="text-xs text-muted-foreground">Pending</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" className="w-full">
+                      Withdraw Earnings
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">Minimum payout: $100</p>
+                  </div>
+
+                  <div className="h-px bg-border" />
+
+                  {/* How You Earn */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold">How You Earn</h3>
+                    <div className="flex items-center gap-1 overflow-x-auto pb-1">
+                      {[
+                        { level: 1, pct: "10%" },
+                        { level: 2, pct: "7%" },
+                        { level: 3, pct: "5%" },
+                        { level: 4, pct: "3%" },
+                        { level: 5, pct: "2%" },
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-1">
+                          <div className="flex flex-col items-center p-3 bg-primary/5 border border-primary/20 rounded-lg min-w-[72px]">
+                            <span className="text-xs text-muted-foreground">Level {item.level}</span>
+                            <span className="text-lg font-bold text-primary">{item.pct}</span>
+                          </div>
+                          {i < 4 && <span className="text-muted-foreground text-xs">→</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      When someone subscribes through your link, you earn a percentage from their paid plan. If they invite others, you also earn from their activity.
+                    </p>
+                  </div>
+
+                  <div className="h-px bg-border" />
+
+                  {/* Your Network Snapshot */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold">Your Network</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 bg-muted/50 rounded-lg text-center">
+                        <p className="text-lg font-bold text-foreground">18</p>
+                        <p className="text-xs text-muted-foreground">Total referrals</p>
+                      </div>
+                      <div className="p-3 bg-muted/50 rounded-lg text-center">
+                        <p className="text-lg font-bold text-foreground">9</p>
+                        <p className="text-xs text-muted-foreground">Active subscribers</p>
+                      </div>
+                      <div className="p-3 bg-muted/50 rounded-lg text-center">
+                        <p className="text-lg font-bold text-foreground">$320</p>
+                        <p className="text-xs text-muted-foreground">This month</p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary/80">
+                      View detailed referral stats →
+                    </Button>
+                  </div>
+
+                  <div className="h-px bg-border" />
+
+                  {/* Status Timeline */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold">Payout Status</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle className="h-4 w-4 text-accent" />
+                        <span className="text-sm text-foreground">Payment received</span>
+                      </div>
+                      <div className="flex items-center gap-3 ml-[7px]">
+                        <div className="w-0.5 h-4 bg-border" />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">14-day hold period</span>
+                      </div>
+                      <div className="flex items-center gap-3 ml-[7px]">
+                        <div className="w-0.5 h-4 bg-border" />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <CheckCircle className="h-4 w-4 text-accent" />
+                        <span className="text-sm text-foreground">Available for withdrawal</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Commission becomes available after 14 days.</p>
                   </div>
                 </CardContent>
               </Card>
