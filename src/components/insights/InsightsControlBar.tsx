@@ -101,23 +101,23 @@ export const InsightsControlBar = () => {
     }
   };
   const handlePlatformToggle = (platform: Platform) => {
-    const newPlatforms = filters.platforms.includes(platform) ? filters.platforms.filter(p => p !== platform) : [...filters.platforms, platform];
+    const newPlatforms = filters.platforms.includes(platform) ? filters.platforms.filter((p) => p !== platform) : [...filters.platforms, platform];
     setPlatforms(newPlatforms);
   };
   const handleAccountToggle = (accountId: string) => {
-    const newAccounts = filters.accounts.includes(accountId) ? filters.accounts.filter(a => a !== accountId) : [...filters.accounts, accountId];
+    const newAccounts = filters.accounts.includes(accountId) ? filters.accounts.filter((a) => a !== accountId) : [...filters.accounts, accountId];
     setAccounts(newAccounts);
   };
   const getTimeRangeLabel = () => {
     if (filters.timeRange === "custom" && filters.customDateRange) {
       return `${format(filters.customDateRange.from, "MMM d")} - ${format(filters.customDateRange.to, "MMM d")}`;
     }
-    return TIME_RANGE_OPTIONS.find(o => o.value === filters.timeRange)?.label || "Last 7 days";
+    return TIME_RANGE_OPTIONS.find((o) => o.value === filters.timeRange)?.label || "Last 7 days";
   };
   const getPlatformLabel = () => {
     if (filters.platforms.length === 3) return "All Platforms";
     if (filters.platforms.length === 0) return "Select platforms";
-    return filters.platforms.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(", ");
+    return filters.platforms.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(", ");
   };
   const getAccountLabel = () => {
     if (filters.accounts.length === availableAccounts.length) return "All Accounts";
@@ -125,7 +125,7 @@ export const InsightsControlBar = () => {
     return `${filters.accounts.length} selected`;
   };
   const getMetricLabel = () => {
-    return METRIC_OPTIONS.find(o => o.value === filters.primaryMetric)?.label || "Views";
+    return METRIC_OPTIONS.find((o) => o.value === filters.primaryMetric)?.label || "Views";
   };
 
   // Get timezone abbreviation
@@ -147,7 +147,7 @@ export const InsightsControlBar = () => {
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <div className="p-2 space-y-1">
-            {TIME_RANGE_OPTIONS.filter(o => o.value !== "custom").map(option => <Button key={option.value} variant={filters.timeRange === option.value ? "secondary" : "ghost"} size="sm" className="w-full justify-start" onClick={() => handleTimeRangeSelect(option.value)}>
+            {TIME_RANGE_OPTIONS.filter((o) => o.value !== "custom").map((option) => <Button key={option.value} variant={filters.timeRange === option.value ? "secondary" : "ghost"} size="sm" className="w-full justify-start" onClick={() => handleTimeRangeSelect(option.value)}>
                 {option.label}
               </Button>)}
             <div className="border-t border-border my-2" />
@@ -155,7 +155,7 @@ export const InsightsControlBar = () => {
             <Calendar mode="range" selected={{
             from: dateRange.from,
             to: dateRange.to
-          }} onSelect={range => setDateRange({
+          }} onSelect={(range) => setDateRange({
             from: range?.from,
             to: range?.to
           })} numberOfMonths={1} className="pointer-events-auto" />
@@ -166,9 +166,9 @@ export const InsightsControlBar = () => {
         </PopoverContent>
       </Popover>
 
-      <Badge variant="outline" className="text-xs text-muted-foreground">
-        {getTimezoneAbbr()}
-      </Badge>
+      
+
+
 
       <div className="w-px h-6 bg-border" />
 
@@ -182,7 +182,7 @@ export const InsightsControlBar = () => {
         </PopoverTrigger>
         <PopoverContent className="w-48 p-2" align="start">
           <div className="space-y-2">
-            {PLATFORM_OPTIONS.map(option => <label key={option.value} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer">
+            {PLATFORM_OPTIONS.map((option) => <label key={option.value} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer">
                 <Checkbox checked={filters.platforms.includes(option.value)} onCheckedChange={() => handlePlatformToggle(option.value)} />
                 {option.icon}
                 <span className="text-sm">{option.label}</span>
@@ -201,7 +201,7 @@ export const InsightsControlBar = () => {
         </PopoverTrigger>
         <PopoverContent className="w-56 p-2" align="start">
           <div className="max-h-64 overflow-auto space-y-1">
-            {availableAccounts.map(account => <label key={account.id} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer">
+            {availableAccounts.map((account) => <label key={account.id} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer">
                 <Checkbox checked={filters.accounts.includes(account.id)} onCheckedChange={() => handleAccountToggle(account.id)} />
                 <span className="text-sm flex-1">{account.handle}</span>
                 {account.isUser && <Badge variant="secondary" className="text-xs">You</Badge>}
@@ -219,7 +219,7 @@ export const InsightsControlBar = () => {
         </PopoverTrigger>
         <PopoverContent className="w-48 p-2" align="start">
           <div className="space-y-1">
-            {METRIC_OPTIONS.map(option => <Button key={option.value} variant={filters.primaryMetric === option.value ? "secondary" : "ghost"} size="sm" className="w-full justify-start" onClick={() => {
+            {METRIC_OPTIONS.map((option) => <Button key={option.value} variant={filters.primaryMetric === option.value ? "secondary" : "ghost"} size="sm" className="w-full justify-start" onClick={() => {
             setPrimaryMetric(option.value);
             setIsMetricOpen(false);
           }}>
