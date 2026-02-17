@@ -1,14 +1,12 @@
 import { Sidebar } from "@/components/Sidebar";
-import { Badge } from "@/components/ui/badge";
 import { InsightsFilterProvider } from "@/contexts/InsightsFilterContext";
 import { InsightsControlBar } from "@/components/insights/InsightsControlBar";
 import { RatingsChart } from "@/components/insights/RatingsChart";
 import { MetricChangesChart } from "@/components/insights/MetricChangesChart";
-import { ContentRankingPanel } from "@/components/insights/ContentRankingPanel";
 import { PlatformStatsChart } from "@/components/insights/PlatformStatsChart";
 import { PlatformMultiMetricChart } from "@/components/insights/PlatformMultiMetricChart";
 import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
-import { InsightsActionsSection } from "@/components/insights/InsightsActionsSection";
+import { AIRecommendationBlock } from "@/components/insights/AIRecommendationBlock";
 import { Brain, Building2 } from "lucide-react";
 
 const AIInsightsContent = () => {
@@ -36,29 +34,47 @@ const AIInsightsContent = () => {
         {/* Global Control Bar */}
         <InsightsControlBar />
 
-        {/* Charts: Ratings + Metric Changes - full width, stacked */}
-        <div className="space-y-6">
+        {/* Ratings + AI Recommendation */}
+        <div>
           <RatingsChart />
-          <MetricChangesChart />
-        </div>
-
-        {/* Platform Statistics - Full width, stacked */}
-        <div className="space-y-6">
-          <PlatformStatsChart 
-            title="Platform Statistics" 
-            description="Performance breakdown by platform"
+          <AIRecommendationBlock
+            recommendations={[
+              "Engagement rate declined 12% over the last 7 days despite stable posting. Possible hook fatigue — test shorter openings under 3 seconds.",
+              "Share rate shows a downward trend. Experiment with controversy-driven or question-based hooks to increase shareability."
+            ]}
           />
-          <PlatformMultiMetricChart />
         </div>
 
-        {/* Content Ranking */}
-        <ContentRankingPanel />
+        {/* Metric Changes + AI Recommendation */}
+        <div>
+          <MetricChangesChart />
+          <AIRecommendationBlock
+            recommendations={[
+              "High volatility detected in daily views. Posting consistency may be affecting algorithm reach — aim for fixed daily publishing slots.",
+              "Likes and comments are growing slower than views, indicating reduced content resonance. Review top-performing formats from competitors."
+            ]}
+          />
+        </div>
 
-        {/* Panel D: Accounts Comparison Table */}
+        {/* Platform Statistics + AI Recommendation */}
+        <div className="space-y-0">
+          <div className="space-y-6">
+            <PlatformStatsChart
+              title="Platform Statistics"
+              description="Performance breakdown by platform"
+            />
+            <PlatformMultiMetricChart />
+          </div>
+          <AIRecommendationBlock
+            recommendations={[
+              "TikTok generates 52% higher ER than Instagram. Consider reallocating posting frequency toward TikTok for maximum engagement.",
+              "YouTube has the lowest volume but highest average view duration. Use it for long-form authority content while TikTok drives reach."
+            ]}
+          />
+        </div>
+
+        {/* Accounts Strategic Comparison (includes its own AI Recommendation) */}
         <AccountsComparisonTable />
-
-        {/* Insights & Actions Section */}
-        <InsightsActionsSection />
       </div>
     </main>
   );
