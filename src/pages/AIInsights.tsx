@@ -9,6 +9,15 @@ import { AccountsComparisonTable } from "@/components/insights/AccountsCompariso
 import { AIRecommendationBlock } from "@/components/insights/AIRecommendationBlock";
 import { Brain, Building2 } from "lucide-react";
 
+const ChartWithRecommendation = ({ children, recommendations }: { children: React.ReactNode; recommendations: string[] }) => (
+  <div className="[&>div:first-child]:rounded-b-none [&>div:first-child]:border-b-0 [&>div:first-child]:shadow-none">
+    {children}
+    <div className="rounded-b-lg border border-t-0 border-border bg-card px-6 pb-5 pt-1">
+      <AIRecommendationBlock recommendations={recommendations} />
+    </div>
+  </div>
+);
+
 const AIInsightsContent = () => {
   return (
     <main className="flex-1 p-8 overflow-auto">
@@ -35,42 +44,44 @@ const AIInsightsContent = () => {
         <InsightsControlBar />
 
         {/* Ratings + AI Recommendation */}
-        <div>
+        <ChartWithRecommendation
+          recommendations={[
+            "Engagement rate declined 12% over the last 7 days despite stable posting. Possible hook fatigue — test shorter openings under 3 seconds.",
+            "Share rate shows a downward trend. Experiment with controversy-driven or question-based hooks to increase shareability."
+          ]}
+        >
           <RatingsChart />
-          <AIRecommendationBlock
-            recommendations={[
-              "Engagement rate declined 12% over the last 7 days despite stable posting. Possible hook fatigue — test shorter openings under 3 seconds.",
-              "Share rate shows a downward trend. Experiment with controversy-driven or question-based hooks to increase shareability."
-            ]}
-          />
-        </div>
+        </ChartWithRecommendation>
 
         {/* Metric Changes + AI Recommendation */}
-        <div>
+        <ChartWithRecommendation
+          recommendations={[
+            "High volatility detected in daily views. Posting consistency may be affecting algorithm reach — aim for fixed daily publishing slots.",
+            "Likes and comments are growing slower than views, indicating reduced content resonance. Review top-performing formats from competitors."
+          ]}
+        >
           <MetricChangesChart />
-          <AIRecommendationBlock
-            recommendations={[
-              "High volatility detected in daily views. Posting consistency may be affecting algorithm reach — aim for fixed daily publishing slots.",
-              "Likes and comments are growing slower than views, indicating reduced content resonance. Review top-performing formats from competitors."
-            ]}
-          />
-        </div>
+        </ChartWithRecommendation>
 
         {/* Platform Statistics + AI Recommendation */}
-        <div className="space-y-0">
-          <div className="space-y-6">
+        <div>
+          <div className="[&>div]:rounded-b-none [&>div]:border-b-0 [&>div]:shadow-none">
             <PlatformStatsChart
               title="Platform Statistics"
               description="Performance breakdown by platform"
             />
+          </div>
+          <div className="[&>div]:rounded-none [&>div]:border-t-0 [&>div]:border-b-0 [&>div]:shadow-none">
             <PlatformMultiMetricChart />
           </div>
-          <AIRecommendationBlock
-            recommendations={[
-              "TikTok generates 52% higher ER than Instagram. Consider reallocating posting frequency toward TikTok for maximum engagement.",
-              "YouTube has the lowest volume but highest average view duration. Use it for long-form authority content while TikTok drives reach."
-            ]}
-          />
+          <div className="rounded-b-lg border border-t-0 border-border bg-card px-6 pb-5 pt-1">
+            <AIRecommendationBlock
+              recommendations={[
+                "TikTok generates 52% higher ER than Instagram. Consider reallocating posting frequency toward TikTok for maximum engagement.",
+                "YouTube has the lowest volume but highest average view duration. Use it for long-form authority content while TikTok drives reach."
+              ]}
+            />
+          </div>
         </div>
 
         {/* Accounts Strategic Comparison (includes its own AI Recommendation) */}
