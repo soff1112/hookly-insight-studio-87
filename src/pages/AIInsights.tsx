@@ -5,6 +5,7 @@ import { RatingsChart } from "@/components/insights/RatingsChart";
 import { MetricChangesChart } from "@/components/insights/MetricChangesChart";
 import { PlatformStatsChart } from "@/components/insights/PlatformStatsChart";
 import { PlatformMultiMetricChart } from "@/components/insights/PlatformMultiMetricChart";
+import { AccountStatsChart } from "@/components/insights/AccountStatsChart";
 import { AccountsComparisonTable } from "@/components/insights/AccountsComparisonTable";
 import { AIRecommendationBlock } from "@/components/insights/AIRecommendationBlock";
 import { Brain, Building2 } from "lucide-react";
@@ -73,6 +74,9 @@ const AIInsightsContent = () => {
           </div>
           <div className="[&>div]:rounded-none [&>div]:border-t-0 [&>div]:border-b-0 [&>div]:shadow-none">
             <PlatformMultiMetricChart />
+          </div>
+          <div className="[&>div]:rounded-none [&>div]:border-t-0 [&>div]:border-b-0 [&>div]:shadow-none">
+            <AccountStatsChart />
           </div>
           <div className="rounded-b-lg border border-t-0 border-border bg-card px-6 pb-5 pt-1">
             <AIRecommendationBlock
